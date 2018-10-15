@@ -1,0 +1,33 @@
+{
+  "name": "yzrh",
+  "description": "template",
+  "version": "1.0.0",
+  "author": {
+    "email": "m@bouzuya.net",
+    "name": "bouzuya",
+    "url": "https://bouzuya.net/"
+  },
+  "bugs": {
+    "url": "https://github.com/bouzuya/yzrh/issues"
+  },
+  "devDependencies": {
+    "psc-package-bin-simple": "^1.0.4",
+    "purescript": "^0.12.0"
+  },
+  "homepage": "https://github.com/bouzuya/yzrh#readme",
+  "keywords": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bouzuya/yzrh.git"
+  },
+  "scripts": {
+    "build": "psc-package sources | xargs purs compile 'src/**/*.purs' 'test/**/*.purs'",
+    "purs": "purs",
+    "repl": "psc-package repl -- 'test/**/*.purs'",
+    "postinstall": "psc-package install",
+    "psc-package": "psc-package",
+    "start": "node --eval \"require('./output/Main').main();\"",
+    "test": "node --eval \"require('./output/Test.Main').main();\""
+  }
+}
