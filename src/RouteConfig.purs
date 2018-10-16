@@ -11,11 +11,13 @@ import Data.Maybe (Maybe(..))
 import Data.String as String
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
+import PathTemplate (PathTemplate)
+import PathTemplate as PathTemplate
 import Prelude (bind, const, map, pure)
 
 type Route =
   { method :: String
-  , path :: String
+  , path :: PathTemplate
   , to :: String
   }
 
@@ -31,7 +33,8 @@ routeFromLine line = do
   case (NonEmptyArray.toArray matches) of
     [_, method', path', to'] -> do
       method <- method'
-      path <- path'
+      pathString <- path'
+      path <- PathTemplate.fromConfigString pathString
       to <- to'
       pure { method, path, to }
     _ -> Nothing

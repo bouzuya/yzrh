@@ -8,17 +8,25 @@ import Data.Array as Array
 import Data.Foldable (intercalate)
 import Data.Maybe (Maybe(..))
 import Data.String as String
-import Prelude (class Show, map, show, (<>))
+import Prelude (class Eq, class Show, eq, map, show, (<>))
 
 data T
   = P String
   | S String
+
+instance eqT :: Eq T where
+  eq (P s1) (P s2) = eq s1 s2
+  eq (S s1) (S s2) = eq s1 s2
+  eq _ _ = false
 
 instance showT :: Show T where
   show (P s) = "{" <> s <> "}"
   show (S s) = s
 
 newtype PathTemplate = PathTemplate (Array T)
+
+instance eqPathTemplate :: Eq PathTemplate where
+  eq (PathTemplate ts1) (PathTemplate ts2) = eq ts1 ts2
 
 instance showPathTemplate :: Show PathTemplate where
   show (PathTemplate ts) = intercalate "/" (map show ts)

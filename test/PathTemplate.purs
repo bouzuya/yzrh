@@ -24,3 +24,10 @@ tests = suite "PathTemplate" do
         unsafePartial (fromJust (PathTemplate.fromConfigString "/"))
     Assert.equal "/" (show template)
     Assert.equal [] (PathTemplate.params template)
+  test "Eq" do
+    Assert.assert
+      "=="
+      ((PathTemplate.fromConfigString "/users/:id") == (PathTemplate.fromConfigString "/users/:id"))
+    Assert.assert
+      "/="
+      ((PathTemplate.fromConfigString "/") /= (PathTemplate.fromConfigString "/users/:id"))
