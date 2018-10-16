@@ -25,7 +25,7 @@ type RouteConfig =
 
 routeFromLine :: String -> Maybe Route
 routeFromLine line = do
-  let p = "^\\s*(delete|get|patch|post|put)\\s+'([^']+)',\\s*to:\\s*'([^']+)'.*$"
+  let p = "^\\s*(delete|get|patch|post|put)\\s+'([^']+)'\\s*,\\s*to:\\s*'([^']+)'.*$"
   r <- either (const Nothing) Just (Regex.regex p noFlags)
   matches <- Regex.match r line
   case (NonEmptyArray.toArray matches) of
