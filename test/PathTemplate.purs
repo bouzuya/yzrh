@@ -2,11 +2,10 @@ module Test.PathTemplate
   ( tests
   ) where
 
-import Prelude
-
 import Data.Maybe (fromJust)
 import Partial.Unsafe (unsafePartial)
 import PathTemplate as PathTemplate
+import Prelude (discard, show, (/=), (==), (>))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
@@ -31,3 +30,7 @@ tests = suite "PathTemplate" do
     Assert.assert
       "/="
       ((PathTemplate.fromConfigString "/") /= (PathTemplate.fromConfigString "/users/:id"))
+  test "Ord" do
+    Assert.assert
+      ">"
+      ((PathTemplate.fromConfigString "/users/:id") > (PathTemplate.fromConfigString "/users"))
