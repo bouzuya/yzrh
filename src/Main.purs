@@ -20,6 +20,7 @@ import Node.Process as Process
 import OpenAPI as OpenAPI
 import OpenAPIHelper as OpenAPIHelper
 import PathTemplate (PathTemplate)
+import PathTemplate as PathTemplate
 import Prelude (class Ord, Unit, bind, map, pure, show, (<>))
 import RouteConfig (Route, RouteConfig)
 import RouteConfig as RouteConfig
@@ -39,7 +40,24 @@ configToPaths config =
     entries :: Array (Tuple PathTemplate (NonEmptyArray Route))
     entries = Map.toUnfoldable m
     tuple :: Tuple PathTemplate (NonEmptyArray Route) -> Tuple String OpenAPI.PathItem
-    tuple (Tuple path _) = Tuple (show path) (OpenAPIHelper.buildPathItem (show path))
+    tuple (Tuple path routes) =
+      let
+        operationMap =
+          Map.fromFoldable
+            ( map
+                (\r ->
+                  Tuple
+                    r.method
+                    (OpenAPIHelper.buildOperation (PathTemplate.params r.path))
+                )
+                routes
+            )
+        pathItem =
+          OpenAPIHelper.buildPathItem
+            (show path)
+            operationMap
+      in
+        Tuple (show path) pathItem
     paths :: OpenAPI.Paths
     paths = Object.fromFoldable (map tuple entries)
   in
