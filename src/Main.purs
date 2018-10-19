@@ -12,12 +12,18 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 import Effect.Exception (throw)
+import Foreign.Object as Object
 import Node.Encoding as Encoding
 import Node.FS.Sync as FS
 import Node.Path (FilePath)
 import Node.Process as Process
+import OpenAPI as OpenAPI
+import OpenAPIHelper as OpenAPIHelper
+import PathTemplate (PathTemplate)
 import Prelude (class Ord, Unit, bind, map, pure, show, (<>))
+import RouteConfig (Route)
 import RouteConfig as RouteConfig
+import Simple.JSON (writeJSON)
 
 pathMap :: forall k v. Ord k => (v -> k) -> Array v -> Map k (NonEmptyArray v)
 pathMap key xs =
@@ -31,5 +37,14 @@ main = do
   argv <- Process.argv
   file <- maybe (throw "no arg") pure (argv Array.!! 1)
   config <- read file
-  let m = pathMap _.path config.routes
-  log (show m)
+  let
+    m = pathMap _.path config.routes
+    entries :: Array (Tuple PathTemplate (NonEmptyArray Route))
+    entries = Map.toUnfoldable m
+    tuple :: Tuple PathTemplate (NonEmptyArray Route) -> Tuple String OpenAPI.PathItem
+    tuple (Tuple path _) = Tuple (show path) (OpenAPIHelper.buildPathItem (show path))
+    paths :: OpenAPI.Paths
+    paths = Object.fromFoldable (map tuple entries)
+    info = OpenAPIHelper.buildInfo file "0.0.0"
+    openApi = OpenAPIHelper.buildOpenApi info paths
+  log (writeJSON openApi)
