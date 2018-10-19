@@ -21,7 +21,7 @@ import OpenAPI as OpenAPI
 import OpenAPIHelper as OpenAPIHelper
 import PathTemplate (PathTemplate)
 import Prelude (class Ord, Unit, bind, map, pure, show, (<>))
-import RouteConfig (Route)
+import RouteConfig (Route, RouteConfig)
 import RouteConfig as RouteConfig
 import Simple.JSON (writeJSON)
 
@@ -32,11 +32,8 @@ pathMap key xs =
 read :: FilePath -> Effect RouteConfig.RouteConfig
 read p = map RouteConfig.fromString (FS.readTextFile Encoding.UTF8 p)
 
-main :: Effect Unit
-main = do
-  argv <- Process.argv
-  file <- maybe (throw "no arg") pure (argv Array.!! 1)
-  config <- read file
+configToPaths :: RouteConfig -> OpenAPI.Paths
+configToPaths config =
   let
     m = pathMap _.path config.routes
     entries :: Array (Tuple PathTemplate (NonEmptyArray Route))
@@ -45,6 +42,16 @@ main = do
     tuple (Tuple path _) = Tuple (show path) (OpenAPIHelper.buildPathItem (show path))
     paths :: OpenAPI.Paths
     paths = Object.fromFoldable (map tuple entries)
+  in
+    paths
+
+main :: Effect Unit
+main = do
+  argv <- Process.argv
+  file <- maybe (throw "no arg") pure (argv Array.!! 1)
+  config <- read file
+  let
+    paths = configToPaths config
     info = OpenAPIHelper.buildInfo file "0.0.0"
     openApi = OpenAPIHelper.buildOpenApi info paths
   log (writeJSON openApi)
