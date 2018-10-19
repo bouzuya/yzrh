@@ -2,6 +2,13 @@
 
 template
 
+## How to run
+
+```
+$ npm --silent run build
+$ npm --silent start -- .psc-tmp/routes.rb | jq --sort-keys . > openapi.json
+```
+
 ## License
 
 [MIT](LICENSE)
