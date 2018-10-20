@@ -6,6 +6,7 @@ import Data.Maybe (fromJust)
 import Partial.Unsafe (unsafePartial)
 import PathTemplate as PathTemplate
 import RouteConfig as RouteConfig
+import RouteConfig.Rails as RouteConfigRails
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
@@ -20,7 +21,7 @@ tests = suite "RouteConfig" do
         ]
       }
       (
-        RouteConfig.fromString """
+        RouteConfigRails.fromString """
           Rails.application.routes.draw do
             post '/users', to: 'users#create'
             get '/users/:id', to: 'users#show'

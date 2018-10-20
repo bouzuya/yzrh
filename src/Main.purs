@@ -24,6 +24,7 @@ import PathTemplate as PathTemplate
 import Prelude (class Ord, Unit, bind, map, pure, show, (<>))
 import RouteConfig (Route, RouteConfig)
 import RouteConfig as RouteConfig
+import RouteConfig.Rails as RouteConfigRails
 import Simple.JSON (writeJSON)
 
 pathMap :: forall k v. Ord k => (v -> k) -> Array v -> Map k (NonEmptyArray v)
@@ -31,7 +32,7 @@ pathMap key xs =
   Map.fromFoldableWith (<>) (map (\x -> Tuple (key x) (NonEmptyArray.singleton x)) xs)
 
 read :: FilePath -> Effect RouteConfig.RouteConfig
-read p = map RouteConfig.fromString (FS.readTextFile Encoding.UTF8 p)
+read p = map RouteConfigRails.fromString (FS.readTextFile Encoding.UTF8 p)
 
 configToPaths :: RouteConfig -> OpenAPI.Paths
 configToPaths config =
