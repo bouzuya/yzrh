@@ -1,7 +1,7 @@
 module PathTemplate
   ( PathTemplate
   , fromConfigString
-  , params
+  , parameterNames
   ) where
 
 import Data.Array as Array
@@ -45,8 +45,8 @@ fromConfigString s =
           ":" -> P after
           _ -> S s'
 
-params :: PathTemplate -> Array String
-params (PathTemplate ts) =
+parameterNames :: PathTemplate -> Array String
+parameterNames (PathTemplate ts) =
   Array.catMaybes (map toName ts)
   where
     toName (P s) = Just s

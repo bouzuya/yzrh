@@ -49,7 +49,7 @@ configToPaths config =
                 (\r ->
                   Tuple
                     r.method
-                    (OpenAPIHelper.buildOperation (PathTemplate.params r.path))
+                    (OpenAPIHelper.buildOperation (PathTemplate.parameterNames r.path))
                 )
                 routes
             )
