@@ -1,8 +1,10 @@
 {
   "name": "yzrh",
-  "set": "psc-0.12.0",
-  "source": "https://github.com/purescript/package-sets.git",
+  "set": "bouzuya-20181026",
+  "source": "https://github.com/bouzuya/package-sets.git",
   "depends": [
+    "bouzuya-http-method",
+    "bouzuya-http-status-code",
     "node-fs",
     "node-process",
     "prelude",
