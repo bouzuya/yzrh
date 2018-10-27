@@ -47,7 +47,7 @@ type View =
 type ViewName = String
 
 type YAS =
-  { routes :: Array Route
-  , actions :: Array Action
+  { actions :: Array Action
+  , routes :: Array Route
   , views :: Array View
   }
