@@ -5,14 +5,13 @@ module OpenAPIHelper
   , buildPathItem
   ) where
 
-import Prelude
-
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Foreign.Object as Object
 import OpenAPI as OpenAPI
+import Prelude (map)
 
 buildInfo :: String -> String -> OpenAPI.Info
 buildInfo title version =
