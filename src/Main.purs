@@ -10,6 +10,7 @@ import Data.Either (either)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
+import Data.String as String
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import Data.Tuple (Tuple(..))
@@ -46,7 +47,7 @@ configToYAS config =
   let
     toRoute r = do
       pattern <- either (const Nothing) Just (Regex.regex "^[^/]+$" noFlags) -- TODO
-      method <- Method.fromString r.method
+      method <- Method.fromString (String.toUpper r.method)
       pure
         { action: r.to
         , method
@@ -75,7 +76,7 @@ yasToPaths yas =
             ( map
                 (\r ->
                   Tuple
-                    (show r.method)
+                    (String.toLower (show r.method))
                     (OpenAPIHelper.buildOperation (PathTemplate.parameterNames r.path))
                 )
                 routes
