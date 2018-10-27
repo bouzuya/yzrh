@@ -17,8 +17,8 @@ import PathTemplate (PathTemplate)
 
 type Action =
   { name :: ActionName
-  , params :: Array ActionParameter
-  , view :: Map StatusCode View
+  , parameters :: Array ActionParameter
+  , views :: Map StatusCode View
   }
 
 type ActionName = String
@@ -36,7 +36,7 @@ type Route =
   { action :: ActionName
   , method :: Method
   , name :: String
-  , params :: Array PathParameter
+  , parameters :: Array PathParameter
   , path :: PathTemplate
   }
 
@@ -47,7 +47,7 @@ type View =
 type ViewName = String
 
 type YAS =
-  { route :: Array Route
-  , action :: Array Action
-  , view :: Array View
+  { routes :: Array Route
+  , actions :: Array Action
+  , views :: Array View
   }
