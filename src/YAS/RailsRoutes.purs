@@ -1,4 +1,4 @@
-module RouteConfig.Rails
+module YAS.RailsRoutes
   ( fromString
   ) where
 

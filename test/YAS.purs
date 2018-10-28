@@ -6,13 +6,13 @@ import Bouzuya.HTTP.Method as Method
 import Data.Maybe (fromJust)
 import Partial.Unsafe (unsafePartial)
 import PathTemplate as PathTemplate
-import RouteConfig.Rails as RouteConfigRails
+import YAS.RailsRoutes as YASRailsRoutes
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import YAS as YAS
 
 tests :: TestSuite
-tests = suite "RouteConfig" do
+tests = suite "YAS.RailsRoutes" do
   test "basic" do
     let
       p s = unsafePartial (fromJust (PathTemplate.fromConfigString s))
@@ -26,7 +26,7 @@ tests = suite "RouteConfig" do
       , views: []
       }
       (
-        RouteConfigRails.fromString """
+        YASRailsRoutes.fromString """
           Rails.application.routes.draw do
             post '/users', to: 'users#create'
             get '/users/:id', to: 'users#show'

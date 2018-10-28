@@ -23,13 +23,13 @@ import OpenAPIHelper as OpenAPIHelper
 import PathTemplate (PathTemplate)
 import PathTemplate as PathTemplate
 import Prelude (class Ord, Unit, bind, map, pure, show, (<>))
-import RouteConfig.Rails as RouteConfigRails
 import Simple.JSON (writeJSON)
 import YAS (YAS)
 import YAS as YAS
+import YAS.RailsRoutes as YASRailsRoutes
 
 read :: FilePath -> Effect YAS
-read p = map RouteConfigRails.fromString (FS.readTextFile Encoding.UTF8 p)
+read p = map YASRailsRoutes.fromString (FS.readTextFile Encoding.UTF8 p)
 
 pathMap :: forall k v. Ord k => (v -> k) -> Array v -> Map k (NonEmptyArray v)
 pathMap key xs =
