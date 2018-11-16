@@ -7,6 +7,9 @@
     "name": "bouzuya",
     "url": "https://bouzuya.net/"
   },
+  "bin": {
+    "yzrh": "bin/yzrh"
+  },
   "bugs": {
     "url": "https://github.com/bouzuya/yzrh/issues"
   },
@@ -17,17 +20,18 @@
   "homepage": "https://github.com/bouzuya/yzrh#readme",
   "keywords": [],
   "license": "MIT",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bouzuya/yzrh.git"
   },
   "scripts": {
     "build": "psc-package sources | xargs purs compile 'src/**/*.purs' 'test/**/*.purs'",
-    "purs": "purs",
-    "repl": "psc-package repl -- 'test/**/*.purs'",
     "postinstall": "psc-package install",
     "psc-package": "psc-package",
-    "start": "node --eval \"require('./output/Main').main();\"",
+    "purs": "purs",
+    "repl": "psc-package repl -- 'test/**/*.purs'",
+    "start": "./bin/yzrh",
     "test": "node --eval \"require('./output/Test.Main').main();\""
   }
 }
