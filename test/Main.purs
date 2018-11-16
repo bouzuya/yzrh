@@ -4,6 +4,7 @@ module Test.Main
 
 import Effect (Effect)
 import Prelude (Unit, discard)
+import Test.CommandLineOption as CommandLineOption
 import Test.PathTemplate as PathTemplate
 import Test.RouteConfig as RouteConfig
 import Test.Unit (test)
@@ -14,5 +15,6 @@ main :: Effect Unit
 main = runTest do
   test "dummy" do
     Assert.equal true true
+  CommandLineOption.tests
   PathTemplate.tests
   RouteConfig.tests
