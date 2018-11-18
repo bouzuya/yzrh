@@ -10,7 +10,7 @@ import Foreign.Object as Object
 import Partial.Unsafe (unsafePartial)
 import Prelude ((<<<))
 
-type CommandLineOptions =  { from :: String, to :: String }
+type CommandLineOptions =  { inFormat :: String, outFormat :: String }
 
 default :: String -> String -> Object String -> Object String
 default k v o = Object.alter (maybe (Just v) Just) k o
@@ -36,8 +36,8 @@ toObject options = f options Object.empty
 toRecord :: Object String -> CommandLineOptions
 toRecord o =
   let
-    o' = (default "to" "json" (default "from" "json" o))
-    from = unsafePartial (fromJust (Object.lookup "from" o'))
-    to = unsafePartial (fromJust (Object.lookup "to" o'))
+    o' = (default "out-format" "json" (default "in-format" "json" o))
+    inFormat = unsafePartial (fromJust (Object.lookup "in-format" o'))
+    outFormat = unsafePartial (fromJust (Object.lookup "out-format" o'))
   in
-    { from, to }
+    { inFormat, outFormat }

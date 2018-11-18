@@ -10,11 +10,13 @@ import Test.Unit.Assert as Assert
 tests :: TestSuite
 tests = suite "CommandLineOption" do
   test "parse" do
-    let defaults = { from: "json", to: "json" }
-    Assert.equal (defaults { from = "json" }) (parse [])
-    Assert.equal (defaults { from = "json" }) (parse ["--from", "json"])
-    Assert.equal (defaults { from = "routes.rb" }) (parse ["--from", "routes.rb"])
-    Assert.equal (defaults { to = "json" }) (parse [])
-    Assert.equal (defaults { to = "json" }) (parse ["--to", "json"])
-    Assert.equal (defaults { to = "routes.rb" }) (parse ["--to", "routes.rb"])
-    Assert.equal (defaults { from = "routes.rb", to = "routes.rb" }) (parse ["--from", "routes.rb", "--to", "routes.rb"])
+    let defaults = { inFormat: "json", outFormat: "json" }
+    Assert.equal (defaults { inFormat = "json" }) (parse [])
+    Assert.equal (defaults { inFormat = "json" }) (parse ["--in-format", "json"])
+    Assert.equal (defaults { inFormat = "routes.rb" }) (parse ["--in-format", "routes.rb"])
+    Assert.equal (defaults { outFormat = "json" }) (parse [])
+    Assert.equal (defaults { outFormat = "json" }) (parse ["--out-format", "json"])
+    Assert.equal (defaults { outFormat = "routes.rb" }) (parse ["--out-format", "routes.rb"])
+    Assert.equal
+      (defaults { inFormat = "routes.rb", outFormat = "routes.rb" })
+      (parse ["--in-format", "routes.rb", "--out-format", "routes.rb"])
