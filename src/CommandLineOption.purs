@@ -3,19 +3,18 @@ module CommandLineOption
   ) where
 
 import Data.Array as Array
-import Data.Maybe (Maybe(..), fromJust, maybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.String as String
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Partial.Unsafe (unsafePartial)
-import Prelude ((<<<))
+import Prelude (bind, pure, (<<<))
 
-type CommandLineOptions =  { inFormat :: String, outFormat :: String }
+type CommandLineOptions =  { inFile :: String, inFormat :: String, outFormat :: String }
 
 default :: String -> String -> Object String -> Object String
 default k v o = Object.alter (maybe (Just v) Just) k o
 
-parse :: Array String -> CommandLineOptions
+parse :: Array String -> Maybe CommandLineOptions
 parse = toRecord <<< toObject
 
 -- "--name" -> "name"
@@ -33,11 +32,10 @@ toObject options = f options Object.empty
         [key, value] -> f (Array.drop 2 o) (Object.insert (toName key) value p)
         _ -> p
 
-toRecord :: Object String -> CommandLineOptions
-toRecord o =
-  let
-    o' = (default "out-format" "json" (default "in-format" "json" o))
-    inFormat = unsafePartial (fromJust (Object.lookup "in-format" o'))
-    outFormat = unsafePartial (fromJust (Object.lookup "out-format" o'))
-  in
-    { inFormat, outFormat }
+toRecord :: Object String -> Maybe CommandLineOptions
+toRecord o = do
+  let o' = (default "out-format" "json" (default "in-format" "json" o))
+  inFile <- Object.lookup "in-file" o'
+  inFormat <- Object.lookup "in-format" o'
+  outFormat <- Object.lookup "out-format" o'
+  pure { inFile, inFormat, outFormat }
