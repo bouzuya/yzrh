@@ -50,14 +50,14 @@ optionDefinitions =
 default :: String -> String -> Object String -> Object String
 default k v o = Object.alter (maybe (Just v) Just) k o
 
-defaults :: OptionDefinitions -> Object String -> Object String
-defaults defs object =
+defaults :: OptionDefinitions -> Object String
+defaults defs =
   foldl
     (\o d ->
       case d.value of
         Nothing -> o
         Just v -> default d.long v o)
-    object
+    Object.empty
     defs
 
 findByOptionName :: OptionName -> OptionDefinitions -> Maybe StringOption
@@ -77,11 +77,11 @@ getOptionName s =
       Nothing -> Nothing
 
 parse :: Array String -> Maybe CommandLineOptions
-parse = (toRecord optionDefinitions) <<< (toObject optionDefinitions)
+parse = toRecord <<< (toObject optionDefinitions)
 
 -- ["--name", "value"] -> { name: "value" }
 toObject :: OptionDefinitions -> Array String -> Object String
-toObject defs options = toObject' options Object.empty
+toObject defs options = toObject' options (defaults defs)
   where
     toObject' o p =
       case Array.head o of
@@ -99,10 +99,9 @@ toObject defs options = toObject' options Object.empty
                     Just value -> -- TODO: value == "--foo" -- no metavar (next option)
                       toObject' (Array.drop 2 o) (Object.insert d.long value p)
 
-toRecord :: OptionDefinitions -> Object String -> Maybe CommandLineOptions
-toRecord defs o = do
-  let o' = defaults defs o
-  inFile <- Object.lookup "in-file" o'
-  inFormat <- Object.lookup "in-format" o'
-  outFormat <- Object.lookup "out-format" o'
+toRecord :: Object String -> Maybe CommandLineOptions
+toRecord o = do
+  inFile <- Object.lookup "in-file" o
+  inFormat <- Object.lookup "in-format" o
+  outFormat <- Object.lookup "out-format" o
   pure { inFile, inFormat, outFormat }
