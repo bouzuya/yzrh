@@ -10,8 +10,8 @@ import Test.Unit.Assert as Assert
 
 tests :: TestSuite
 tests = suite "CommandLineOption" do
+  let defaults = { inFile: "yas.json", inFormat: "json", outFormat: "json" }
   test "parse" do
-    let defaults = { inFile: "yas.json", inFormat: "json", outFormat: "json" }
     Assert.equal
       (Just defaults { inFile = "yas.json", inFormat = "json" })
       (parse ["--in-file", "yas.json"])
@@ -33,3 +33,7 @@ tests = suite "CommandLineOption" do
     Assert.equal
       (Just defaults { inFile = "routes.rb", inFormat = "routes.rb", outFormat = "routes.rb" })
       (parse ["--in-file", "routes.rb", "--in-format", "routes.rb", "--out-format", "routes.rb"])
+  test "short" do
+    Assert.equal
+      (Just defaults { inFile = "routes.rb", inFormat = "routes.rb", outFormat = "routes.rb" })
+      (parse ["-f", "routes.rb", "-i", "routes.rb", "-o", "routes.rb"])
