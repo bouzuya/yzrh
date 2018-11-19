@@ -21,9 +21,11 @@ type StringOption =
 
 type CommandLineOptions =  { inFile :: String, inFormat :: String, outFormat :: String }
 
+type OptionDefinitions = Array StringOption
+
 data OptionName = Long String | Short Char
 
-optionDefinitions :: Array StringOption
+optionDefinitions :: OptionDefinitions
 optionDefinitions =
   [ { help: "input file"
     , long: "in-file"
@@ -48,7 +50,7 @@ optionDefinitions =
 default :: String -> String -> Object String -> Object String
 default k v o = Object.alter (maybe (Just v) Just) k o
 
-defaults :: Array StringOption -> Object String -> Object String
+defaults :: OptionDefinitions -> Object String -> Object String
 defaults defs object =
   foldl
     (\o d ->
@@ -58,7 +60,7 @@ defaults defs object =
     object
     defs
 
-findByOptionName :: OptionName -> Array StringOption -> Maybe StringOption
+findByOptionName :: OptionName -> OptionDefinitions -> Maybe StringOption
 findByOptionName (Long l) = Array.find (\d -> d.long == l)
 findByOptionName (Short s) = Array.find (\d -> d.short == Just s)
 
@@ -75,11 +77,11 @@ getOptionName s =
       Nothing -> Nothing
 
 parse :: Array String -> Maybe CommandLineOptions
-parse = toRecord <<< toObject
+parse = (toRecord optionDefinitions) <<< (toObject optionDefinitions)
 
 -- ["--name", "value"] -> { name: "value" }
-toObject :: Array String -> Object String
-toObject options = toObject' options Object.empty
+toObject :: OptionDefinitions -> Array String -> Object String
+toObject defs options = toObject' options Object.empty
   where
     toObject' o p =
       case Array.head o of
@@ -89,7 +91,7 @@ toObject options = toObject' options Object.empty
             Nothing -> p -- ERROR: support `--option value` format only
             Just name ->
               -- TODO: long == "" -- double hyphen (--) support
-              case findByOptionName name optionDefinitions of
+              case findByOptionName name defs of
                 Nothing -> p -- ERROR: no such option
                 Just d ->
                   case Array.head (Array.drop 1 o) of -- read metavar
@@ -97,9 +99,9 @@ toObject options = toObject' options Object.empty
                     Just value -> -- TODO: value == "--foo" -- no metavar (next option)
                       toObject' (Array.drop 2 o) (Object.insert d.long value p)
 
-toRecord :: Object String -> Maybe CommandLineOptions
-toRecord o = do
-  let o' = defaults optionDefinitions o
+toRecord :: OptionDefinitions -> Object String -> Maybe CommandLineOptions
+toRecord defs o = do
+  let o' = defaults defs o
   inFile <- Object.lookup "in-file" o'
   inFormat <- Object.lookup "in-format" o'
   outFormat <- Object.lookup "out-format" o'
