@@ -13,7 +13,7 @@ import Data.String as String
 import Data.String.CodeUnits as CodeUnit
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (const, map, (==))
+import Prelude (bind, const, map, (==))
 
 data OptionName = Long String | Short Char
 
