@@ -13,7 +13,7 @@ import Data.String as String
 import Data.String.CodeUnits as CodeUnit
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (const, map, (==))
+import Prelude (const, map, notEq, (<<<), (==))
 
 data OptionName = Long String | Short Char
 
@@ -36,12 +36,25 @@ getOptionName :: String -> Maybe OptionName
 getOptionName s =
   let
     p = String.Pattern "-"
+    v = String.takeWhile (notEq (String.codePointFromChar '='))
   in
     case String.stripPrefix p s of
       Just s' ->
         case String.stripPrefix p s' of
-          Just s'' -> Just (Long s'') -- TODO: `--foo=bar`
-          _ -> map Short (CodeUnit.charAt 0 s')
+          Just s'' -> Just (Long (v s''))
+          _ -> map Short (CodeUnit.charAt 0 (v s')) -- TODO: -fg
+      Nothing -> Nothing
+
+getOptionValue :: String -> Maybe String
+getOptionValue s =
+  let
+    p = String.Pattern "-"
+    v = (String.drop 1) <<< (String.dropWhile (notEq (String.codePointFromChar '=')))
+  in
+    case String.stripPrefix p s of
+      Just s' ->
+        let s'' = v s'
+        in if String.null s'' then Nothing else Just s''
       Nothing -> Nothing
 
 -- ["--name", "value"] -> { name: "value" }
@@ -53,7 +66,7 @@ toObject defs options = toObject' options (defaultValues defs)
         Nothing -> p
         Just s ->
           case getOptionName s of
-            Nothing -> p -- ERROR: support `--option value` or `-o value` format only
+            Nothing -> p -- ERROR: support `--option value`, `--option=value`, `-o value`, or `-o=value` format only
             Just name ->
               -- TODO: long == "" -- double hyphen (--) support
               case findByOptionName name defs of
@@ -63,12 +76,18 @@ toObject defs options = toObject' options (defaultValues defs)
                     long = getLongName d
                   in
                     if isValueRequired d then
-                      case Array.head (Array.drop 1 o) of -- read metavar
-                        Nothing -> p -- ERROR: no metavar (end)
-                        Just value -> -- TODO: value == "--foo" -- no metavar (next option)
+                      case getOptionValue s of
+                        Just value ->
                           toObject'
-                            (Array.drop 2 o)
+                            (Array.drop 1 o)
                             (Object.insert long (OptionValue.fromString value) p)
+                        Nothing ->
+                          case Array.head (Array.drop 1 o) of -- read metavar
+                            Nothing -> p -- ERROR: no metavar (end)
+                            Just value -> -- TODO: value == "--foo" -- no metavar (next option)
+                              toObject'
+                                (Array.drop 2 o)
+                                (Object.insert long (OptionValue.fromString value) p)
                     else
                       toObject'
                         (Array.drop 1 o)
