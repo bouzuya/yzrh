@@ -3,7 +3,7 @@ module CommandLineOption.OptionObject
   , toObject
   ) where
 
-import CommandLineOption.OptionDefinition (OptionDefinition(..))
+import CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getShortName, isValueRequired)
 import CommandLineOption.OptionValue (OptionValue)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
@@ -13,23 +13,16 @@ import Data.String as String
 import Data.String.CodeUnits as CodeUnit
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (bind, const, map, (==))
+import Prelude (const, map, (==))
 
 data OptionName = Long String | Short Char
 
 type OptionObject = Object OptionValue
 
-defaults :: Array OptionDefinition -> OptionObject
-defaults defs =
+defaultValues :: Array OptionDefinition -> OptionObject
+defaultValues defs =
   foldl
-    (\o d ->
-      case d of
-        BooleanOption { long } ->
-          Object.alter (const (Just (OptionValue.fromBoolean false))) long o
-        StringOption i ->
-          case i.value of
-            Nothing -> o
-            Just v -> Object.alter (const (Just (OptionValue.fromString v))) i.long o)
+    (\o d -> Object.alter (const (getDefaultValue d)) (getLongName d) o)
     Object.empty
     defs
 
@@ -38,13 +31,6 @@ findByOptionName name =
   case name of
     Long l -> Array.find (\d -> getLongName d == l)
     Short s -> Array.find (\d -> getShortName d == Just s)
-  where
-  getLongName :: OptionDefinition -> String
-  getLongName (BooleanOption { long }) = long
-  getLongName (StringOption { long }) = long
-  getShortName :: OptionDefinition -> Maybe Char
-  getShortName (BooleanOption { short }) = short
-  getShortName (StringOption { short }) = short
 
 getOptionName :: String -> Maybe OptionName
 getOptionName s =
@@ -60,7 +46,7 @@ getOptionName s =
 
 -- ["--name", "value"] -> { name: "value" }
 toObject :: Array OptionDefinition -> Array String -> OptionObject
-toObject defs options = toObject' options (defaults defs)
+toObject defs options = toObject' options (defaultValues defs)
   where
     toObject' o p =
       case Array.head o of
@@ -72,14 +58,18 @@ toObject defs options = toObject' options (defaults defs)
               -- TODO: long == "" -- double hyphen (--) support
               case findByOptionName name defs of
                 Nothing -> p -- ERROR: no such option
-                Just (BooleanOption { long }) ->
-                  toObject'
-                    (Array.drop 1 o)
-                    (Object.insert long (OptionValue.fromBoolean true) p)
-                Just (StringOption { long }) ->
-                  case Array.head (Array.drop 1 o) of -- read metavar
-                    Nothing -> p -- ERROR: no metavar (end)
-                    Just value -> -- TODO: value == "--foo" -- no metavar (next option)
+                Just d ->
+                  let
+                    long = getLongName d
+                  in
+                    if isValueRequired d then
+                      case Array.head (Array.drop 1 o) of -- read metavar
+                        Nothing -> p -- ERROR: no metavar (end)
+                        Just value -> -- TODO: value == "--foo" -- no metavar (next option)
+                          toObject'
+                            (Array.drop 2 o)
+                            (Object.insert long (OptionValue.fromString value) p)
+                    else
                       toObject'
-                        (Array.drop 2 o)
-                        (Object.insert long (OptionValue.fromString value) p)
+                        (Array.drop 1 o)
+                        (Object.insert long (OptionValue.fromBoolean true) p)

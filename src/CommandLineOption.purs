@@ -2,7 +2,7 @@ module CommandLineOption
   ( parse
   ) where
 
-import CommandLineOption.OptionDefinition (OptionDefinition(..))
+import CommandLineOption.OptionDefinition (OptionDefinition, booleanOption, stringOption)
 import CommandLineOption.OptionObject (OptionObject, toObject)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Maybe (Maybe(..))
@@ -18,28 +18,28 @@ type CommandLineOptions =
 
 optionDefinitions :: Array OptionDefinition
 optionDefinitions =
-  [ StringOption
+  [ stringOption
     { help: "input file"
     , long: "in-file"
     , metavar: "<file>"
     , short: Just 'f'
     , value: Nothing
     }
-  , StringOption
+  , stringOption
     { help: "input file format"
     , long: "in-format"
     , metavar: "<format>"
     , short: Just 'i'
     , value: Just "json"
     }
-  , StringOption
+  , stringOption
     { help: "output file format"
     , long: "out-format"
     , metavar: "<format>"
     , short: Just 'o'
     , value: Just "json"
     }
-  , BooleanOption
+  , booleanOption
     { help: "verbose"
     , long: "verbose"
     , short: Just 'v'
