@@ -21,7 +21,8 @@ type StringOption =
 
 type CommandLineOptions =  { inFile :: String, inFormat :: String, outFormat :: String }
 
-type OptionDefinitions = Array StringOption
+type OptionDefinition = StringOption
+type OptionDefinitions = Array OptionDefinition
 
 data OptionName = Long String | Short Char
 
@@ -29,7 +30,7 @@ type OptionObject = Object String
 
 type OptionValue = String
 
-optionDefinitions :: OptionDefinitions
+optionDefinitions :: Array OptionDefinition
 optionDefinitions =
   [ { help: "input file"
     , long: "in-file"
@@ -51,7 +52,7 @@ optionDefinitions =
     }
   ]
 
-defaults :: OptionDefinitions -> OptionObject
+defaults :: Array OptionDefinition -> OptionObject
 defaults defs =
   foldl
     (\o d ->
@@ -61,7 +62,7 @@ defaults defs =
     Object.empty
     defs
 
-findByOptionName :: OptionName -> OptionDefinitions -> Maybe StringOption
+findByOptionName :: OptionName -> Array OptionDefinition -> Maybe StringOption
 findByOptionName (Long l) = Array.find (\d -> d.long == l)
 findByOptionName (Short s) = Array.find (\d -> d.short == Just s)
 
@@ -73,7 +74,7 @@ getOptionName s =
     case String.stripPrefix p s of
       Just s' ->
         case String.stripPrefix p s' of
-          Just s'' -> Just (Long s'')
+          Just s'' -> Just (Long s'') -- TODO: `--foo=bar`
           _ -> map Short (CodeUnit.charAt 0 s')
       Nothing -> Nothing
 
@@ -81,7 +82,7 @@ parse :: Array String -> Maybe CommandLineOptions
 parse = toRecord <<< (toObject optionDefinitions)
 
 -- ["--name", "value"] -> { name: "value" }
-toObject :: OptionDefinitions -> Array String -> OptionObject
+toObject :: Array OptionDefinition -> Array String -> OptionObject
 toObject defs options = toObject' options (defaults defs)
   where
     toObject' o p =
