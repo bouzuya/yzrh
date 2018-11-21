@@ -59,36 +59,51 @@ getOptionValue s =
 
 -- ["--name", "value"] -> { name: "value" }
 toObject :: Array OptionDefinition -> Array String -> OptionObject
-toObject defs options = toObject' options (defaultValues defs)
+toObject defs options =
+  let
+    parsed =
+      foldl
+        f
+        { parsed: defaultValues defs, processing: Nothing }
+        options
+  in
+    case parsed.processing of
+      Nothing -> parsed.parsed
+      Just _ -> parsed.parsed -- ERROR: no metavar (end)
   where
-    toObject' o p =
-      case Array.head o of
-        Nothing -> p
-        Just s ->
-          case getOptionName s of
-            Nothing -> p -- ERROR: support `--option value`, `--option=value`, `-o value`, or `-o=value` format only
-            Just name ->
-              -- TODO: long == "" -- double hyphen (--) support
-              case findByOptionName name defs of
-                Nothing -> p -- ERROR: no such option
-                Just d ->
-                  let
-                    long = getLongName d
-                  in
-                    if isValueRequired d then
-                      case getOptionValue s of
-                        Just value ->
-                          toObject'
-                            (Array.drop 1 o)
-                            (Object.insert long (OptionValue.fromString value) p)
-                        Nothing ->
-                          case Array.head (Array.drop 1 o) of -- read metavar
-                            Nothing -> p -- ERROR: no metavar (end)
-                            Just value -> -- TODO: value == "--foo" -- no metavar (next option)
-                              toObject'
-                                (Array.drop 2 o)
-                                (Object.insert long (OptionValue.fromString value) p)
-                    else
-                      toObject'
-                        (Array.drop 1 o)
-                        (Object.insert long (OptionValue.fromBoolean true) p)
+    f { processing: Nothing, parsed } s =
+      case getOptionName s of
+        Nothing ->
+          { parsed
+          , processing: Nothing
+          } -- ERROR: arguments is not supported
+        Just name ->
+          -- TODO: long == "" -- double hyphen (--) support
+          case findByOptionName name defs of
+            Nothing ->
+              { parsed
+              , processing: Nothing
+              } -- ERROR: unknown option
+            Just def ->
+              let
+                long = getLongName def
+              in
+                if isValueRequired def then
+                  case getOptionValue s of
+                    Just value ->
+                      { parsed: Object.insert long (OptionValue.fromString value) parsed
+                      , processing: Nothing
+                      }
+                    Nothing ->
+                      { parsed
+                      , processing: Just def
+                      }
+                else
+                  { parsed: Object.insert long (OptionValue.fromBoolean true) parsed
+                  , processing: Nothing
+                  }
+    f { parsed, processing: Just def } s =
+      -- TODO: value == "--foo" -- no metavar (next option)
+      { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
+      , processing: Nothing
+      }
