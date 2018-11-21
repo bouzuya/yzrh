@@ -24,7 +24,12 @@ type StringOptionInfo =
   , value :: Maybe String
   }
 
-type CommandLineOptions =  { inFile :: String, inFormat :: String, outFormat :: String }
+type CommandLineOptions =
+  { inFile :: String
+  , inFormat :: String
+  , outFormat :: String
+  , verbose :: Boolean
+  }
 
 data OptionDefinition
   = BooleanOption BooleanOptionInfo
@@ -62,6 +67,11 @@ optionDefinitions =
     , metavar: "<format>"
     , short: Just 'o'
     , value: Just "json"
+    }
+  , BooleanOption
+    { help: "verbose"
+    , long: "verbose"
+    , short: Just 'v'
     }
   ]
 
@@ -153,4 +163,5 @@ toRecord o = do
   inFile <- getStringValue "in-file" o
   inFormat <- getStringValue "in-format" o
   outFormat <- getStringValue "out-format" o
-  pure { inFile, inFormat, outFormat }
+  verbose <- getBooleanValue "verbose" o
+  pure { inFile, inFormat, outFormat, verbose }
