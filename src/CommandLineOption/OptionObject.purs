@@ -1,12 +1,11 @@
 module CommandLineOption.OptionObject
   ( OptionObject
-  , OptionValue
-  , getBooleanValue
-  , getStringValue
   , toObject
   ) where
 
 import CommandLineOption.OptionDefinition (OptionDefinition(..))
+import CommandLineOption.OptionValue (OptionValue)
+import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
@@ -14,15 +13,11 @@ import Data.String as String
 import Data.String.CodeUnits as CodeUnit
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (bind, const, map, (==))
+import Prelude (const, map, (==))
 
 data OptionName = Long String | Short Char
 
 type OptionObject = Object OptionValue
-
-data OptionValue
-  = BooleanValue Boolean
-  | StringValue String
 
 defaults :: Array OptionDefinition -> OptionObject
 defaults defs =
@@ -30,11 +25,11 @@ defaults defs =
     (\o d ->
       case d of
         BooleanOption { long } ->
-          Object.alter (const (Just (BooleanValue false))) long o
+          Object.alter (const (Just (OptionValue.fromBoolean false))) long o
         StringOption i ->
           case i.value of
             Nothing -> o
-            Just v -> Object.alter (const (Just (StringValue v))) i.long o)
+            Just v -> Object.alter (const (Just (OptionValue.fromString v))) i.long o)
     Object.empty
     defs
 
@@ -63,20 +58,6 @@ getOptionName s =
           _ -> map Short (CodeUnit.charAt 0 s')
       Nothing -> Nothing
 
-getBooleanValue :: String -> OptionObject -> Maybe Boolean
-getBooleanValue n o = do
-  value <- Object.lookup n o
-  case value of
-    BooleanValue b -> Just b
-    StringValue _ -> Nothing
-
-getStringValue :: String -> OptionObject -> Maybe String
-getStringValue n o = do
-  value <- Object.lookup n o
-  case value of
-    BooleanValue _ -> Nothing
-    StringValue s -> Just s
-
 -- ["--name", "value"] -> { name: "value" }
 toObject :: Array OptionDefinition -> Array String -> OptionObject
 toObject defs options = toObject' options (defaults defs)
@@ -94,11 +75,11 @@ toObject defs options = toObject' options (defaults defs)
                 Just (BooleanOption { long }) ->
                   toObject'
                     (Array.drop 1 o)
-                    (Object.insert long (BooleanValue true) p)
+                    (Object.insert long (OptionValue.fromBoolean true) p)
                 Just (StringOption { long }) ->
                   case Array.head (Array.drop 1 o) of -- read metavar
                     Nothing -> p -- ERROR: no metavar (end)
                     Just value -> -- TODO: value == "--foo" -- no metavar (next option)
                       toObject'
                         (Array.drop 2 o)
-                        (Object.insert long (StringValue value) p)
+                        (Object.insert long (OptionValue.fromString value) p)

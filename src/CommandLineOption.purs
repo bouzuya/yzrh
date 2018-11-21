@@ -3,9 +3,11 @@ module CommandLineOption
   ) where
 
 import CommandLineOption.OptionDefinition (OptionDefinition(..))
-import CommandLineOption.OptionObject (OptionObject, getBooleanValue, getStringValue, toObject)
+import CommandLineOption.OptionObject (OptionObject, toObject)
+import CommandLineOption.OptionValue as OptionValue
 import Data.Maybe (Maybe(..))
-import Prelude (bind, pure, (<<<))
+import Foreign.Object as Object
+import Prelude (bind, join, map, pure, (<<<))
 
 type CommandLineOptions =
   { inFile :: String
@@ -49,8 +51,8 @@ parse = toRecord <<< (toObject optionDefinitions)
 
 toRecord :: OptionObject -> Maybe CommandLineOptions
 toRecord o = do
-  inFile <- getStringValue "in-file" o
-  inFormat <- getStringValue "in-format" o
-  outFormat <- getStringValue "out-format" o
-  verbose <- getBooleanValue "verbose" o
+  inFile <- join (map OptionValue.getStringValue (Object.lookup "in-file" o))
+  inFormat <- join (map OptionValue.getStringValue (Object.lookup "in-format" o))
+  outFormat <- join (map OptionValue.getStringValue (Object.lookup "out-format" o))
+  verbose <- join (map OptionValue.getBooleanValue (Object.lookup  "verbose" o))
   pure { inFile, inFormat, outFormat, verbose }
