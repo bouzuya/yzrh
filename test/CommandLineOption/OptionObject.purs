@@ -177,7 +177,23 @@ tests = suite "CommandLineOption.OptionObject" do
       Assert.equal
         (Left "unknown boolean option") -- TODO: improve message
         (f defs ["-cu"])
-    test "no metavar (ERROR)" do
+    test "no metavar (end) (ERROR)" do
       Assert.equal
         (Left "no metavar (end)") -- TODO: improve message
         (f defs ["--a-string"])
+      Assert.equal
+        (Left "no metavar (end)") -- TODO: improve message
+        (f defs ["-a"])
+    test "no metavar (next) (ERROR)" do
+      Assert.equal
+        (Left "no metavar (next)") -- TODO: improve message
+        (f defs ["--a-string", "--c-boolean"])
+      Assert.equal
+        (Left "no metavar (next)") -- TODO: improve message
+        (f defs ["-a", "--c-boolean"])
+      Assert.equal
+        (Left "no metavar (next)") -- TODO: improve message
+        (f defs ["--a-string", "-c"])
+      Assert.equal
+        (Left "no metavar (next)") -- TODO: improve message
+        (f defs ["-a", "-c"])

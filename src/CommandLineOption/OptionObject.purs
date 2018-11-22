@@ -116,8 +116,11 @@ toObject defs options = do
             (Right { parsed, processing: Nothing })
             options'
     f (Right { parsed, processing: Just def }) s =
-      -- TODO: value == "--foo" -- no metavar (next option)
-      Right
-        { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
-        , processing: Nothing
-        }
+      case parseOption s of
+        [] ->
+          Right
+            { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
+            , processing: Nothing
+            }
+        _ ->
+          Left "no metavar (next)"
