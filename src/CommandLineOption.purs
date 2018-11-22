@@ -14,6 +14,7 @@ type CommandLineOptions =
   , inFormat :: String
   , outFormat :: String
   , verbose :: Boolean
+  , version :: Boolean
   }
 
 optionDefinitions :: Array OptionDefinition
@@ -44,6 +45,11 @@ optionDefinitions =
     , long: "verbose"
     , short: Just 'v'
     }
+  , booleanOption
+    { help: "show version"
+    , long: "version"
+    , short: Just 'V'
+    }
   ]
 
 parse :: Array String -> Maybe CommandLineOptions
@@ -55,4 +61,5 @@ toRecord o = do
   inFormat <- join (map OptionValue.getStringValue (Object.lookup "in-format" o))
   outFormat <- join (map OptionValue.getStringValue (Object.lookup "out-format" o))
   verbose <- join (map OptionValue.getBooleanValue (Object.lookup  "verbose" o))
-  pure { inFile, inFormat, outFormat, verbose }
+  version <- join (map OptionValue.getBooleanValue (Object.lookup  "version" o))
+  pure { inFile, inFormat, outFormat, verbose, version }
