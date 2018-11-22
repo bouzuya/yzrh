@@ -37,14 +37,15 @@ parseOption :: String -> Array { name :: OptionName, value :: Maybe String }
 parseOption s =
   let
     hyphen = String.Pattern "-"
-    -- "foo=bar" -> { name: "foo", value: "bar" }
+    -- "foo" -> { name: "foo", value: Nothing }
+    -- "foo=" -> { name: "foo", value: Just "" }
+    -- "foo=bar" -> { name: "foo", value: Just "bar" }
     split s' =
       case String.indexOf (String.Pattern "=") s' of
-        Nothing -> { name: s', value: "" }
+        Nothing -> { name: s', value: Nothing }
         Just index ->
           let { after, before } = String.splitAt index s'
-          in { name: before, value: (String.drop 1 after) }
-    nullToNothing s' = if String.null s' then Nothing else Just s' -- TODO: OK ?
+          in { name: before, value: Just (String.drop 1 after) }
   in
     case String.stripPrefix hyphen s of
       Nothing -> []
@@ -52,12 +53,12 @@ parseOption s =
         case String.stripPrefix hyphen s' of
           Just s'' ->
             let { name, value } = split s''
-            in [{ name: Long name, value: nullToNothing value }]
+            in [{ name: Long name, value }]
           _ ->
             let { name, value } = split s'
             in
               map
-                (\cp -> { name: Short cp, value: nullToNothing value })
+                (\cp -> { name: Short cp, value })
                 (String.toCodePointArray name)
 
 toObject :: Array OptionDefinition -> Array String -> Either String OptionObject
