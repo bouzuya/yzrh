@@ -9,13 +9,13 @@ import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
+import Data.String (CodePoint)
 import Data.String as String
-import Data.String.CodeUnits as CodeUnit
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import Prelude (const, map, (==))
 
-data OptionName = Long String | Short Char
+data OptionName = Long String | Short CodePoint
 
 type OptionObject = Object OptionValue
 
@@ -30,9 +30,9 @@ findByOptionName :: OptionName -> Array OptionDefinition -> Maybe OptionDefiniti
 findByOptionName name =
   case name of
     Long l -> Array.find (\d -> getLongName d == l)
-    Short s -> Array.find (\d -> getShortName d == Just s)
+    Short s -> Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
 
-parseOption :: String -> { name :: Maybe OptionName, value :: Maybe String }
+parseOption :: String -> Array { name :: OptionName, value :: Maybe String }
 parseOption s =
   let
     hyphen = String.Pattern "-"
@@ -43,18 +43,22 @@ parseOption s =
         Just index ->
           let { after, before } = String.splitAt index s'
           in { name: before, value: (String.drop 1 after) }
-    nullToNothing s' = if String.null s' then Nothing else Just s'
+    nullToNothing s' = if String.null s' then Nothing else Just s' -- TODO: OK ?
   in
     case String.stripPrefix hyphen s of
-      Nothing -> { name: Nothing, value: Nothing }
+      Nothing -> []
       Just s' ->
         case String.stripPrefix hyphen s' of
           Just s'' ->
             let { name, value } = split s''
-            in { name: Just (Long name), value: nullToNothing value }
+            in [{ name: Long name, value: nullToNothing value }]
           _ ->
             let { name, value } = split s'
-            in { name: map Short (CodeUnit.charAt 0 name), value: nullToNothing value } -- TODO: -fg
+            in
+              -- TODO: ERROR: -ab=foo
+              map
+                (\cp -> { name: Short cp, value: nullToNothing value })
+                (String.toCodePointArray name)
 
 toObject :: Array OptionDefinition -> Array String -> OptionObject
 toObject defs options =
@@ -70,14 +74,15 @@ toObject defs options =
       Just _ -> parsed.parsed -- ERROR: no metavar (end)
   where
     f { processing: Nothing, parsed } s =
-      let { name: nameMaybe, value: valueMaybe } = parseOption s
+      let
+        options' = parseOption s
       in
-        case nameMaybe of
-          Nothing ->
+        case options' of
+          [] ->
             { parsed
             , processing: Nothing
             } -- ERROR: arguments is not supported
-          Just name ->
+          [{ name, value: valueMaybe }] ->
             -- TODO: long == "" -- double hyphen (--) support
             case findByOptionName name defs of
               Nothing ->
@@ -104,6 +109,28 @@ toObject defs options =
                       { parsed: Object.insert (getLongName def) (OptionValue.fromBoolean true) parsed
                       , processing: Nothing
                       }
+          _ ->
+            { parsed:
+                foldl
+                  (\parsed' { name, value: valueMaybe } ->
+                    case findByOptionName name defs of
+                      Nothing -> parsed' -- ERROR: unknown option
+                      Just def ->
+                        case valueMaybe of
+                          Just _ -> parsed' -- ERROR: -abc=val is invalid format
+                          Nothing ->
+                            if isValueRequired def then
+                              parsed' -- ERROR: -abc are boolean options.
+                            else
+                              Object.insert
+                                (getLongName def)
+                                (OptionValue.fromBoolean true)
+                                parsed')
+                  parsed
+                  options'
+            , processing: Nothing
+            }
+
     f { parsed, processing: Just def } s =
       -- TODO: value == "--foo" -- no metavar (next option)
       { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
