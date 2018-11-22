@@ -8,12 +8,13 @@ import CommandLineOption.OptionValue (OptionValue)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
 import Data.Array as Array
-import Data.Maybe (Maybe(..))
+import Data.Either (Either(..), note)
+import Data.Maybe (Maybe(..), isNothing)
 import Data.String (CodePoint)
 import Data.String as String
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (const, map, (==))
+import Prelude (bind, const, map, not, unit, (==))
 
 data OptionName = Long String | Short CodePoint
 
@@ -60,79 +61,64 @@ parseOption s =
                 (\cp -> { name: Short cp, value: nullToNothing value })
                 (String.toCodePointArray name)
 
-toObject :: Array OptionDefinition -> Array String -> OptionObject
-toObject defs options =
-  let
-    parsed =
-      foldl
-        f
-        { parsed: defaultValues defs, processing: Nothing }
-        options
-  in
-    case parsed.processing of
-      Nothing -> parsed.parsed
-      Just _ -> parsed.parsed -- ERROR: no metavar (end)
+toObject :: Array OptionDefinition -> Array String -> Either String OptionObject
+toObject defs options = do
+  { parsed, processing } <-
+    foldl
+      f
+      (Right { parsed: defaultValues defs, processing: Nothing })
+      options
+  _ <- assert' "no metavar (end)" (isNothing processing)
+  Right parsed
   where
-    f { processing: Nothing, parsed } s =
-      let
-        options' = parseOption s
-      in
-        case options' of
-          [] ->
-            { parsed
-            , processing: Nothing
-            } -- ERROR: arguments is not supported
-          [{ name, value: valueMaybe }] ->
-            -- TODO: long == "" -- double hyphen (--) support
-            case findByOptionName name defs of
-              Nothing ->
-                { parsed
+    assert' s b = if b then Right unit else Left s
+    f e@(Left _) _ = e
+    f (Right { processing: Nothing, parsed }) s =
+      case parseOption s of
+        [] -> Left "arguments is not supported" -- TODO: add argument support
+        [{ name, value: valueMaybe }] -> do
+          -- TODO: long == "" -- double hyphen (--) support
+          def <- note "unknown option" (findByOptionName name defs)
+          case valueMaybe of
+            Just value ->
+              if isValueRequired def then
+                Right
+                  { parsed: Object.insert (getLongName def) (OptionValue.fromString value) parsed
+                  , processing: Nothing
+                  }
+              else
+                Left "boolean option can't specify value" -- TODO: add option name
+            Nothing ->
+              if isValueRequired def then
+                Right
+                  { parsed
+                  , processing: Just def
+                  }
+              else
+                Right
+                  { parsed: Object.insert (getLongName def) (OptionValue.fromBoolean true) parsed
+                  , processing: Nothing
+                  }
+        options' ->
+          foldl
+            (\e { name, value: valueMaybe } -> do
+              { parsed: parsed' } <- e
+              def <- note "unknown option" (findByOptionName name defs) -- TODO: add option name
+              _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
+              _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
+              Right
+                { parsed:
+                    Object.insert
+                      (getLongName def)
+                      (OptionValue.fromBoolean true)
+                      parsed'
                 , processing: Nothing
-                } -- ERROR: unknown option
-              Just def ->
-                case valueMaybe of
-                  Just value ->
-                    if isValueRequired def then
-                      { parsed: Object.insert (getLongName def) (OptionValue.fromString value) parsed
-                      , processing: Nothing
-                      }
-                    else
-                      { parsed
-                      , processing: Nothing
-                      } -- ERROR: boolean option can't specify value.
-                  Nothing ->
-                    if isValueRequired def then
-                      { parsed
-                      , processing: Just def
-                      }
-                    else
-                      { parsed: Object.insert (getLongName def) (OptionValue.fromBoolean true) parsed
-                      , processing: Nothing
-                      }
-          _ ->
-            { parsed:
-                foldl
-                  (\parsed' { name, value: valueMaybe } ->
-                    case findByOptionName name defs of
-                      Nothing -> parsed' -- ERROR: unknown option
-                      Just def ->
-                        case valueMaybe of
-                          Just _ -> parsed' -- ERROR: -abc=val is invalid format
-                          Nothing ->
-                            if isValueRequired def then
-                              parsed' -- ERROR: -abc are boolean options.
-                            else
-                              Object.insert
-                                (getLongName def)
-                                (OptionValue.fromBoolean true)
-                                parsed')
-                  parsed
-                  options'
-            , processing: Nothing
-            }
-
-    f { parsed, processing: Just def } s =
+                })
+            (Right { parsed, processing: Nothing })
+            options'
+    f (Right { parsed, processing: Just def }) s =
       -- TODO: value == "--foo" -- no metavar (next option)
-      { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
-      , processing: Nothing
-      }
+      Right
+        { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
+        , processing: Nothing
+        }
