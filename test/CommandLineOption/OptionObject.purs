@@ -87,7 +87,10 @@ tests = suite "CommandLineOption.OptionObject" do
       Assert.equal
         (Right (Object.union (o [s "a-string" "a2"]) defaults))
         (f defs ["--a-string=a2"])
-    -- test "boolean option" -- ERROR
+    test "boolean option (ERROR)" do
+      Assert.equal
+        (Left "boolean option can't specify value") -- TODO: improve message
+        (f defs ["--c-boolean=true"])
     test "string option and boolean option" do
       Assert.equal
         (Right
@@ -149,3 +152,32 @@ tests = suite "CommandLineOption.OptionObject" do
           [ "-a=a2"
           , "-cd"
           ])
+    test "-string=value (ERROR)" do
+      Assert.equal
+        (Left "-abc are boolean options") -- TODO: improve message
+        (f defs ["-ab=string"])
+    test "-boolean=value (ERROR)" do
+      Assert.equal
+        (Left "-abc=val is invalid format") -- TODO: improve message
+        (f defs ["-cd=true"])
+  suite "other errors" do
+    test "argument (ERROR)" do
+      Assert.equal
+        (Left "arguments are not supported") -- TODO: improve message
+        (f defs ["arg1"])
+    test "--unknown (ERROR)" do
+      Assert.equal
+        (Left "unknown option") -- TODO: improve message
+        (f defs ["--unknown"])
+    test "-u (ERROR)" do
+      Assert.equal
+        (Left "unknown option") -- TODO: improve message
+        (f defs ["-u"])
+    test "-cu (ERROR)" do
+      Assert.equal
+        (Left "unknown boolean option") -- TODO: improve message
+        (f defs ["-cu"])
+    test "no metavar (ERROR)" do
+      Assert.equal
+        (Left "no metavar (end)") -- TODO: improve message
+        (f defs ["--a-string"])

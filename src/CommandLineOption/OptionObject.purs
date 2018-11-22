@@ -56,7 +56,6 @@ parseOption s =
           _ ->
             let { name, value } = split s'
             in
-              -- TODO: ERROR: -ab=foo
               map
                 (\cp -> { name: Short cp, value: nullToNothing value })
                 (String.toCodePointArray name)
@@ -75,7 +74,7 @@ toObject defs options = do
     f e@(Left _) _ = e
     f (Right { processing: Nothing, parsed }) s =
       case parseOption s of
-        [] -> Left "arguments is not supported" -- TODO: add argument support
+        [] -> Left "arguments are not supported" -- TODO: add argument support
         [{ name, value: valueMaybe }] -> do
           -- TODO: long == "" -- double hyphen (--) support
           def <- note "unknown option" (findByOptionName name defs)
@@ -103,9 +102,9 @@ toObject defs options = do
           foldl
             (\e { name, value: valueMaybe } -> do
               { parsed: parsed' } <- e
-              def <- note "unknown option" (findByOptionName name defs) -- TODO: add option name
-              _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
+              def <- note "unknown boolean option" (findByOptionName name defs) -- TODO: add option name
               _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
+              _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
               Right
                 { parsed:
                     Object.insert
