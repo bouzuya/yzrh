@@ -6,11 +6,22 @@ module CommandLineOption.OptionValue
   , getStringValue
   ) where
 
+import Prelude
+
 import Data.Maybe (Maybe(..))
 
 data OptionValue
   = BooleanValue Boolean
   | StringValue String
+
+instance eqOptionValue :: Eq OptionValue where
+  eq (BooleanValue b1) (BooleanValue b2) = eq b1 b2
+  eq (StringValue s1) (StringValue s2) = eq s1 s2
+  eq _ _ = false
+
+instance showOptionValue :: Show OptionValue where
+  show (BooleanValue b) = show b
+  show (StringValue s) = show s
 
 fromBoolean :: Boolean -> OptionValue
 fromBoolean = BooleanValue
