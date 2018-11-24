@@ -28,7 +28,7 @@ class OptionRecordBuilder (list :: RowList) (from :: # Type) (to :: # Type)
   | list -> from to where
   builder :: RLProxy list -> Object OptionValue -> Maybe (Builder (Record from) (Record to))
 
-instance recordBuilderConsBoolean ::
+instance optionRecordBuilderConsBoolean ::
   ( IsSymbol l
   , OptionRecordBuilder t from from'
   , Row.Lacks l from'
@@ -41,7 +41,7 @@ instance recordBuilderConsBoolean ::
       v = getBooleanValue k o
       t = RLProxy :: RLProxy t
 
-instance recordBuilderConsString ::
+instance optionRecordBuilderConsString ::
   ( IsSymbol l
   , OptionRecordBuilder t from from'
   , Row.Lacks l from'
@@ -54,7 +54,7 @@ instance recordBuilderConsString ::
       v = getStringValue k o
       t = RLProxy :: RLProxy t
 
-instance recordBuilderNil :: OptionRecordBuilder Nil () () where
+instance optionRecordBuilderNil :: OptionRecordBuilder Nil () () where
   builder _ _ = pure identity
 
 toRecord :: forall rows list
