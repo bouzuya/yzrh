@@ -9,6 +9,7 @@ import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
 import Data.Array as Array
 import Data.Either (Either(..), note)
+import Data.Foldable (foldM)
 import Data.Maybe (Maybe(..), isNothing)
 import Data.String (CodePoint)
 import Data.String as String
@@ -70,68 +71,52 @@ parseOption s =
                 (String.toCodePointArray name)
 
 toObject :: Array OptionDefinition -> Array String -> Either String { arguments :: Array String, options :: OptionObject }
-toObject defs options = do
-  { parsed, processing } <-
-    foldl
+toObject defs ss = do
+  { arguments, options, processing } <-
+    foldM
       f
-      (Right { parsed: { arguments: [], options: defaultValues defs }, processing: Nothing })
-      options
+      { arguments: [], options: defaultValues defs, processing: Nothing }
+      ss
   _ <- assert' "no metavar (end)" (isNothing processing)
-  Right parsed
+  Right { arguments, options }
   where
     assert' s b = if b then Right unit else Left s
-    f e@(Left _) _ = e
-    f (Right { processing: Nothing, parsed }) s =
+    f a@{ arguments, options, processing: Nothing } s =
       case parseOption s of
-        [] ->
-          Right
-            { parsed: parsed { arguments = Array.snoc parsed.arguments s }
-            , processing: Nothing
-            }
-        [{ name, value: valueMaybe }] -> do
+        [] -> -- foo
+          Right a { arguments = Array.snoc arguments s }
+        [{ name, value: valueMaybe }] -> do -- -a or --abc
           -- TODO: long == "" -- double hyphen (--) support
-          _ <- assert' "invalid option position" (Array.null parsed.arguments)
+          _ <- assert' "invalid option position" (Array.null arguments)
           def <- note "unknown option" (findByOptionName name defs)
           case valueMaybe of
             Just value ->
               if isValueRequired def then
-                Right
-                  { parsed: parsed { options = addStringOptionValue def value parsed.options }
-                  , processing: Nothing
-                  }
+                Right a { options = addStringOptionValue def value options }
               else
                 Left "boolean option can't specify value" -- TODO: add option name
             Nothing ->
               if isValueRequired def then
-                Right
-                  { parsed
-                  , processing: Just def
-                  }
+                Right a { processing = Just def }
               else
-                Right
-                  { parsed: parsed { options = addBooleanOptionValue def parsed.options }
-                  , processing: Nothing
-                  }
-        options' -> do
-          _ <- assert' "invalid option position" (Array.null parsed.arguments)
-          foldl
-            (\e { name, value: valueMaybe } -> do
-              { parsed: parsed' } <- e
+                Right a { options = addBooleanOptionValue def options }
+        shortOptions -> do -- -abc
+          _ <- assert' "invalid option position" (Array.null arguments)
+          foldM
+            (\a'@{ options: options' } { name, value: valueMaybe } -> do
               def <- note "unknown boolean option" (findByOptionName name defs) -- TODO: add option name
               _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
               _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
-              Right
-                { parsed: parsed' { options = addBooleanOptionValue def parsed'.options }
-                , processing: Nothing
-                })
-            (Right { parsed, processing: Nothing })
-            options'
-    f (Right { parsed, processing: Just def }) s =
+              Right a' { options = addBooleanOptionValue def options' })
+            a
+            shortOptions
+    f a@{ options, processing: Just def } s =
       case parseOption s of
         [] ->
           Right
-            { parsed: parsed { options = addStringOptionValue def s parsed.options }
-            , processing: Nothing
-            }
+            a
+              { options = addStringOptionValue def s options
+              , processing = Nothing
+              }
         _ ->
           Left "no metavar (next)"
