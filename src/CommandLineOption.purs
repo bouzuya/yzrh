@@ -61,9 +61,9 @@ optionDefinitions =
 parse :: Array String -> Maybe CommandLineOptions
 parse = toRecord <<< (toObject optionDefinitions)
 
-toRecord :: Either String OptionObject -> Maybe CommandLineOptions
+toRecord :: Either String { arguments :: Array String, options :: OptionObject } -> Maybe CommandLineOptions
 toRecord e = do
-  o <- hush e
+  { options: o } <- hush e
   inFile <- join (map OptionValue.getStringValue (Object.lookup "inFile" o))
   inFormat <- join (map OptionValue.getStringValue (Object.lookup "inFormat" o))
   outFormat <- join (map OptionValue.getStringValue (Object.lookup "outFormat" o))

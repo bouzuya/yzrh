@@ -69,12 +69,12 @@ parseOption s =
                 (\cp -> { name: Short cp, value })
                 (String.toCodePointArray name)
 
-toObject :: Array OptionDefinition -> Array String -> Either String OptionObject
+toObject :: Array OptionDefinition -> Array String -> Either String { arguments :: Array String, options :: OptionObject }
 toObject defs options = do
   { parsed, processing } <-
     foldl
       f
-      (Right { parsed: defaultValues defs, processing: Nothing })
+      (Right { parsed: { arguments: [], options: defaultValues defs }, processing: Nothing })
       options
   _ <- assert' "no metavar (end)" (isNothing processing)
   Right parsed
@@ -91,7 +91,7 @@ toObject defs options = do
             Just value ->
               if isValueRequired def then
                 Right
-                  { parsed: addStringOptionValue def value parsed
+                  { parsed: parsed { options = addStringOptionValue def value parsed.options }
                   , processing: Nothing
                   }
               else
@@ -104,7 +104,7 @@ toObject defs options = do
                   }
               else
                 Right
-                  { parsed: addBooleanOptionValue def parsed
+                  { parsed: parsed { options = addBooleanOptionValue def parsed.options }
                   , processing: Nothing
                   }
         options' ->
@@ -115,7 +115,7 @@ toObject defs options = do
               _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
               _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
               Right
-                { parsed: addBooleanOptionValue def parsed'
+                { parsed: parsed' { options = addBooleanOptionValue def parsed'.options }
                 , processing: Nothing
                 })
             (Right { parsed, processing: Nothing })
@@ -124,7 +124,7 @@ toObject defs options = do
       case parseOption s of
         [] ->
           Right
-            { parsed: addStringOptionValue def s parsed
+            { parsed: parsed { options = addStringOptionValue def s parsed.options }
             , processing: Nothing
             }
         _ ->

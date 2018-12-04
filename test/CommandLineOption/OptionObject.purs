@@ -59,27 +59,42 @@ tests = suite "CommandLineOption.OptionObject" do
   suite "long (--foo bar)" do
     test "string option" do
       Assert.equal
-        (Right (Object.union (o [s "aString" "a1"]) defaults))
+        (Right
+          { arguments: []
+          , options: Object.union (o [s "aString" "a1"]) defaults
+          })
         (f defs [])
       Assert.equal
-        (Right (Object.union (o [s "aString" "a2"]) defaults))
+        (Right
+          { arguments: []
+          , options: Object.union (o [s "aString" "a2"]) defaults
+          })
         (f defs ["--a-string", "a2"])
     test "boolean option" do
       Assert.equal
-        (Right (Object.union (o [b "cBoolean" false]) defaults))
+        (Right
+          { arguments: []
+          , options: Object.union (o [b "cBoolean" false]) defaults
+          })
         (f defs [])
       Assert.equal
-        (Right (Object.union (o [b "cBoolean" true]) defaults))
+        (Right
+          { arguments: []
+          , options: Object.union (o [b "cBoolean" true]) defaults
+          })
         (f defs ["--c-boolean"])
     test "string option and boolean option" do
       Assert.equal
         (Right
-          (Object.union
-            (o
-              [ s "aString" "a2"
-              , b "cBoolean" true
-              ])
-            defaults))
+          { arguments: []
+          , options:
+              Object.union
+                (o
+                  [ s "aString" "a2"
+                  , b "cBoolean" true
+                  ])
+                defaults
+          })
         (f
           defs
           [ "--a-string"
@@ -89,7 +104,10 @@ tests = suite "CommandLineOption.OptionObject" do
   suite "long (--foo=bar)" do
     test "string option" do
       Assert.equal
-        (Right (Object.union (o [s "aString" "a2"]) defaults))
+        (Right
+          { arguments: []
+          , options: Object.union (o [s "aString" "a2"]) defaults
+          })
         (f defs ["--a-string=a2"])
     test "boolean option (ERROR)" do
       Assert.equal
@@ -98,12 +116,15 @@ tests = suite "CommandLineOption.OptionObject" do
     test "string option and boolean option" do
       Assert.equal
         (Right
-          (Object.union
-            (o
-              [ s "aString" "a2"
-              , b "cBoolean" true
-              ])
-            defaults))
+          { arguments: []
+          , options:
+              Object.union
+                (o
+                  [ s "aString" "a2"
+                  , b "cBoolean" true
+                  ])
+                defaults
+          })
         (f
           defs
           [ "--a-string=a2"
@@ -113,12 +134,15 @@ tests = suite "CommandLineOption.OptionObject" do
     test "string option and boolean option" do
       Assert.equal
         (Right
-          (Object.union
-            (o
-              [ s "aString" "a2"
-              , b "cBoolean" true
-              ])
-            defaults))
+          { arguments: []
+          , options:
+              Object.union
+                (o
+                  [ s "aString" "a2"
+                  , b "cBoolean" true
+                  ])
+                defaults
+          })
         (f
           defs
           [ "-a"
@@ -129,12 +153,15 @@ tests = suite "CommandLineOption.OptionObject" do
     test "string option and boolean option" do
       Assert.equal
         (Right
-          (Object.union
-            (o
-              [ s "aString" "a2"
-              , b "cBoolean" true
-              ])
-            defaults))
+          { arguments: []
+          , options:
+              Object.union
+                (o
+                  [ s "aString" "a2"
+                  , b "cBoolean" true
+                  ])
+                defaults
+          })
         (f
           defs
           [ "-a=a2"
@@ -144,13 +171,16 @@ tests = suite "CommandLineOption.OptionObject" do
     test "string option and boolean option" do
       Assert.equal
         (Right
-          (Object.union
-            (o
-              [ s "aString" "a2"
-              , b "cBoolean" true
-              , b "dBoolean" true
-              ])
-            defaults))
+          { arguments: []
+          , options:
+              Object.union
+                (o
+                  [ s "aString" "a2"
+                  , b "cBoolean" true
+                  , b "dBoolean" true
+                  ])
+                defaults
+          })
         (f
           defs
           [ "-a=a2"
