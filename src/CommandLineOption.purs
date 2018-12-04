@@ -4,9 +4,9 @@ module CommandLineOption
 
 import CommandLineOption.OptionDefinition (OptionDefinition, booleanOption, stringOption)
 import CommandLineOption.OptionObject as OptionObject
+import CommandLineOption.ObjectToRecord as ObjectToRecord
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
-import ObjectToRecord as ObjectToRecord
 import Prelude (bind, map)
 
 type CommandLineOptions =

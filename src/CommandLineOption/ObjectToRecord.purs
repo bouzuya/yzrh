@@ -1,4 +1,4 @@
-module ObjectToRecord
+module CommandLineOption.ObjectToRecord
   ( class OptionRecordBuilder
   , builder
   , toRecord
