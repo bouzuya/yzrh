@@ -83,9 +83,14 @@ toObject defs options = do
     f e@(Left _) _ = e
     f (Right { processing: Nothing, parsed }) s =
       case parseOption s of
-        [] -> Left "arguments are not supported" -- TODO: add argument support
+        [] ->
+          Right
+            { parsed: parsed { arguments = Array.snoc parsed.arguments s }
+            , processing: Nothing
+            }
         [{ name, value: valueMaybe }] -> do
           -- TODO: long == "" -- double hyphen (--) support
+          _ <- assert' "invalid option position" (Array.null parsed.arguments)
           def <- note "unknown option" (findByOptionName name defs)
           case valueMaybe of
             Just value ->
@@ -107,7 +112,8 @@ toObject defs options = do
                   { parsed: parsed { options = addBooleanOptionValue def parsed.options }
                   , processing: Nothing
                   }
-        options' ->
+        options' -> do
+          _ <- assert' "invalid option position" (Array.null parsed.arguments)
           foldl
             (\e { name, value: valueMaybe } -> do
               { parsed: parsed' } <- e

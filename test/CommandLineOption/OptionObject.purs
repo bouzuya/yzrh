@@ -194,11 +194,27 @@ tests = suite "CommandLineOption.OptionObject" do
       Assert.equal
         (Left "-abc=val is invalid format") -- TODO: improve message
         (f defs ["-cd=true"])
-  suite "other errors" do
-    test "argument (ERROR)" do
+  suite "arguments" do
+    test "arguments" do
       Assert.equal
-        (Left "arguments are not supported") -- TODO: improve message
-        (f defs ["arg1"])
+        (Right { arguments: ["arg1", "arg2"], options: defaults })
+        (f defs ["arg1", "arg2"])
+    test "options arguments" do
+      Assert.equal
+        (Right
+          { arguments: ["arg1", "arg2"]
+          , options: Object.union (o [ b "cBoolean" true]) defaults
+          })
+        (f defs ["-c", "arg1", "arg2"])
+    test "arguments short option (ERROR)" do
+      Assert.equal
+        (Left "invalid option position") -- TODo: improve message
+        (f defs ["arg1", "arg2", "-c"])
+    test "arguments short options (ERROR)" do
+      Assert.equal
+        (Left "invalid option position") -- TODo: improve message
+        (f defs ["arg1", "arg2", "-cd"])
+  suite "other errors" do
     test "--unknown (ERROR)" do
       Assert.equal
         (Left "unknown option") -- TODO: improve message
