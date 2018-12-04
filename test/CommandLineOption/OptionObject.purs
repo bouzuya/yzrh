@@ -22,6 +22,7 @@ tests = suite "CommandLineOption.OptionObject" do
         { help: "a string option"
         , long: "a-string"
         , metavar: "<a>"
+        , name: "aString"
         , short: Just 'a'
         , value: Just "a1"
         }
@@ -29,25 +30,28 @@ tests = suite "CommandLineOption.OptionObject" do
         { help: "b string option"
         , long: "b-string"
         , metavar: "<b>"
+        , name: "bString"
         , short: Just 'b'
         , value: Nothing
         }
       , booleanOption
         { help: "c boolean option"
         , long: "c-boolean"
+        , name: "cBoolean"
         , short: Just 'c'
         }
       , booleanOption
         { help: "d boolean option"
         , long: "d-boolean"
+        , name: "dBoolean"
         , short: Just 'd'
         }
       ]
     defaults =
       o
-        [ s "a-string" "a1"
-        , b "c-boolean" false
-        , b "d-boolean" false
+        [ s "aString" "a1"
+        , b "cBoolean" false
+        , b "dBoolean" false
         ]
     o es = Object.fromFoldable es
     s k v = Tuple k (OptionValue.fromString v)
@@ -55,25 +59,25 @@ tests = suite "CommandLineOption.OptionObject" do
   suite "long (--foo bar)" do
     test "string option" do
       Assert.equal
-        (Right (Object.union (o [s "a-string" "a1"]) defaults))
+        (Right (Object.union (o [s "aString" "a1"]) defaults))
         (f defs [])
       Assert.equal
-        (Right (Object.union (o [s "a-string" "a2"]) defaults))
+        (Right (Object.union (o [s "aString" "a2"]) defaults))
         (f defs ["--a-string", "a2"])
     test "boolean option" do
       Assert.equal
-        (Right (Object.union (o [b "c-boolean" false]) defaults))
+        (Right (Object.union (o [b "cBoolean" false]) defaults))
         (f defs [])
       Assert.equal
-        (Right (Object.union (o [b "c-boolean" true]) defaults))
+        (Right (Object.union (o [b "cBoolean" true]) defaults))
         (f defs ["--c-boolean"])
     test "string option and boolean option" do
       Assert.equal
         (Right
           (Object.union
             (o
-              [ s "a-string" "a2"
-              , b "c-boolean" true
+              [ s "aString" "a2"
+              , b "cBoolean" true
               ])
             defaults))
         (f
@@ -85,7 +89,7 @@ tests = suite "CommandLineOption.OptionObject" do
   suite "long (--foo=bar)" do
     test "string option" do
       Assert.equal
-        (Right (Object.union (o [s "a-string" "a2"]) defaults))
+        (Right (Object.union (o [s "aString" "a2"]) defaults))
         (f defs ["--a-string=a2"])
     test "boolean option (ERROR)" do
       Assert.equal
@@ -96,8 +100,8 @@ tests = suite "CommandLineOption.OptionObject" do
         (Right
           (Object.union
             (o
-              [ s "a-string" "a2"
-              , b "c-boolean" true
+              [ s "aString" "a2"
+              , b "cBoolean" true
               ])
             defaults))
         (f
@@ -111,8 +115,8 @@ tests = suite "CommandLineOption.OptionObject" do
         (Right
           (Object.union
             (o
-              [ s "a-string" "a2"
-              , b "c-boolean" true
+              [ s "aString" "a2"
+              , b "cBoolean" true
               ])
             defaults))
         (f
@@ -127,8 +131,8 @@ tests = suite "CommandLineOption.OptionObject" do
         (Right
           (Object.union
             (o
-              [ s "a-string" "a2"
-              , b "c-boolean" true
+              [ s "aString" "a2"
+              , b "cBoolean" true
               ])
             defaults))
         (f
@@ -142,9 +146,9 @@ tests = suite "CommandLineOption.OptionObject" do
         (Right
           (Object.union
             (o
-              [ s "a-string" "a2"
-              , b "c-boolean" true
-              , b "d-boolean" true
+              [ s "aString" "a2"
+              , b "cBoolean" true
+              , b "dBoolean" true
               ])
             defaults))
         (f

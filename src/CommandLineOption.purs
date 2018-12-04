@@ -24,6 +24,7 @@ optionDefinitions =
     { help: "input file"
     , long: "in-file"
     , metavar: "<file>"
+    , name: "inFile"
     , short: Just 'f'
     , value: Nothing
     }
@@ -31,6 +32,7 @@ optionDefinitions =
     { help: "input file format"
     , long: "in-format"
     , metavar: "<format>"
+    , name: "inFormat"
     , short: Just 'i'
     , value: Just "json"
     }
@@ -38,17 +40,20 @@ optionDefinitions =
     { help: "output file format"
     , long: "out-format"
     , metavar: "<format>"
+    , name: "outFormat"
     , short: Just 'o'
     , value: Just "json"
     }
   , booleanOption
     { help: "verbose"
     , long: "verbose"
+    , name: "verbose"
     , short: Just 'v'
     }
   , booleanOption
     { help: "show version"
     , long: "version"
+    , name: "version"
     , short: Just 'V'
     }
   ]
@@ -59,9 +64,9 @@ parse = toRecord <<< (toObject optionDefinitions)
 toRecord :: Either String OptionObject -> Maybe CommandLineOptions
 toRecord e = do
   o <- hush e
-  inFile <- join (map OptionValue.getStringValue (Object.lookup "in-file" o))
-  inFormat <- join (map OptionValue.getStringValue (Object.lookup "in-format" o))
-  outFormat <- join (map OptionValue.getStringValue (Object.lookup "out-format" o))
+  inFile <- join (map OptionValue.getStringValue (Object.lookup "inFile" o))
+  inFormat <- join (map OptionValue.getStringValue (Object.lookup "inFormat" o))
+  outFormat <- join (map OptionValue.getStringValue (Object.lookup "outFormat" o))
   verbose <- join (map OptionValue.getBooleanValue (Object.lookup  "verbose" o))
   version <- join (map OptionValue.getBooleanValue (Object.lookup  "version" o))
   pure { inFile, inFormat, outFormat, verbose, version }

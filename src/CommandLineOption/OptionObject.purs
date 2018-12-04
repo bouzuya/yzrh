@@ -3,7 +3,7 @@ module CommandLineOption.OptionObject
   , toObject
   ) where
 
-import CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getShortName, isValueRequired)
+import CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
 import CommandLineOption.OptionValue (OptionValue)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
@@ -20,10 +20,18 @@ data OptionName = Long String | Short CodePoint
 
 type OptionObject = Object OptionValue
 
+addBooleanOptionValue :: OptionDefinition -> OptionObject -> OptionObject
+addBooleanOptionValue d o =
+  Object.insert (getName d) (OptionValue.fromBoolean true) o
+
+addStringOptionValue :: OptionDefinition -> String -> OptionObject -> OptionObject
+addStringOptionValue d v o =
+  Object.insert (getName d) (OptionValue.fromString v) o
+
 defaultValues :: Array OptionDefinition -> OptionObject
 defaultValues defs =
   foldl
-    (\o d -> Object.alter (const (getDefaultValue d)) (getLongName d) o)
+    (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
     Object.empty
     defs
 
@@ -83,7 +91,7 @@ toObject defs options = do
             Just value ->
               if isValueRequired def then
                 Right
-                  { parsed: Object.insert (getLongName def) (OptionValue.fromString value) parsed
+                  { parsed: addStringOptionValue def value parsed
                   , processing: Nothing
                   }
               else
@@ -96,7 +104,7 @@ toObject defs options = do
                   }
               else
                 Right
-                  { parsed: Object.insert (getLongName def) (OptionValue.fromBoolean true) parsed
+                  { parsed: addBooleanOptionValue def parsed
                   , processing: Nothing
                   }
         options' ->
@@ -107,11 +115,7 @@ toObject defs options = do
               _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
               _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
               Right
-                { parsed:
-                    Object.insert
-                      (getLongName def)
-                      (OptionValue.fromBoolean true)
-                      parsed'
+                { parsed: addBooleanOptionValue def parsed'
                 , processing: Nothing
                 })
             (Right { parsed, processing: Nothing })
@@ -120,7 +124,7 @@ toObject defs options = do
       case parseOption s of
         [] ->
           Right
-            { parsed: Object.insert (getLongName def) (OptionValue.fromString s) parsed
+            { parsed: addStringOptionValue def s parsed
             , processing: Nothing
             }
         _ ->
