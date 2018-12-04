@@ -3,7 +3,7 @@ module Test.CommandLineOption.OptionObject
   ) where
 
 import CommandLineOption.OptionDefinition (booleanOption, stringOption)
-import CommandLineOption.OptionObject (toObject)
+import CommandLineOption.OptionObject (parse)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -16,7 +16,7 @@ import Test.Unit.Assert as Assert
 tests :: TestSuite
 tests = suite "CommandLineOption.OptionObject" do
   let
-    f = toObject
+    f = parse
     defs =
       [ stringOption
         { help: "a string option"

@@ -3,7 +3,8 @@ module CommandLineOption
   ) where
 
 import CommandLineOption.OptionDefinition (OptionDefinition, booleanOption, stringOption)
-import CommandLineOption.OptionObject (OptionObject, toObject)
+import CommandLineOption.OptionObject (ParsedOption)
+import CommandLineOption.OptionObject as OptionObject
 import CommandLineOption.OptionValue as OptionValue
 import Data.Either (Either, hush)
 import Data.Maybe (Maybe(..))
@@ -59,9 +60,9 @@ optionDefinitions =
   ]
 
 parse :: Array String -> Maybe CommandLineOptions
-parse = toRecord <<< (toObject optionDefinitions)
+parse = toRecord <<< (OptionObject.parse optionDefinitions)
 
-toRecord :: Either String { arguments :: Array String, options :: OptionObject } -> Maybe CommandLineOptions
+toRecord :: Either String ParsedOption -> Maybe CommandLineOptions
 toRecord e = do
   { options: o } <- hush e
   inFile <- join (map OptionValue.getStringValue (Object.lookup "inFile" o))

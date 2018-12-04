@@ -1,6 +1,7 @@
 module CommandLineOption.OptionObject
   ( OptionObject
-  , toObject
+  , ParsedOption
+  , parse
   ) where
 
 import CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
@@ -21,6 +22,8 @@ data OptionName = Long String | Short CodePoint
 
 type OptionObject = Object OptionValue
 
+type ParsedOption = { arguments :: Array String, options :: OptionObject }
+
 addBooleanOptionValue :: OptionDefinition -> OptionObject -> OptionObject
 addBooleanOptionValue d o =
   Object.insert (getName d) (OptionValue.fromBoolean true) o
@@ -37,41 +40,13 @@ defaultValues defs =
     defs
 
 findByOptionName :: OptionName -> Array OptionDefinition -> Maybe OptionDefinition
-findByOptionName name =
-  case name of
-    Long l -> Array.find (\d -> getLongName d == l)
-    Short s -> Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
+findByOptionName (Long l) =
+  Array.find (\d -> getLongName d == l)
+findByOptionName (Short s) =
+  Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
 
-parseOption :: String -> Array { name :: OptionName, value :: Maybe String }
-parseOption s =
-  let
-    hyphen = String.Pattern "-"
-    -- "foo" -> { name: "foo", value: Nothing }
-    -- "foo=" -> { name: "foo", value: Just "" }
-    -- "foo=bar" -> { name: "foo", value: Just "bar" }
-    split s' =
-      case String.indexOf (String.Pattern "=") s' of
-        Nothing -> { name: s', value: Nothing }
-        Just index ->
-          let { after, before } = String.splitAt index s'
-          in { name: before, value: Just (String.drop 1 after) }
-  in
-    case String.stripPrefix hyphen s of
-      Nothing -> []
-      Just s' ->
-        case String.stripPrefix hyphen s' of
-          Just s'' ->
-            let { name, value } = split s''
-            in [{ name: Long name, value }]
-          _ ->
-            let { name, value } = split s'
-            in
-              map
-                (\cp -> { name: Short cp, value })
-                (String.toCodePointArray name)
-
-toObject :: Array OptionDefinition -> Array String -> Either String { arguments :: Array String, options :: OptionObject }
-toObject defs ss = do
+parse :: Array OptionDefinition -> Array String -> Either String ParsedOption
+parse defs ss = do
   { arguments, options, processing } <-
     foldM
       f
@@ -82,7 +57,7 @@ toObject defs ss = do
   where
     assert' s b = if b then Right unit else Left s
     f a@{ arguments, options, processing: Nothing } s =
-      case parseOption s of
+      case parse' s of
         [] -> -- foo
           Right a { arguments = Array.snoc arguments s }
         [{ name, value: valueMaybe }] -> do -- -a or --abc
@@ -111,7 +86,7 @@ toObject defs ss = do
             a
             shortOptions
     f a@{ options, processing: Just def } s =
-      case parseOption s of
+      case parse' s of
         [] ->
           Right
             a
@@ -120,3 +95,31 @@ toObject defs ss = do
               }
         _ ->
           Left "no metavar (next)"
+
+parse' :: String -> Array { name :: OptionName, value :: Maybe String }
+parse' s =
+  let
+    hyphen = String.Pattern "-"
+    -- "foo" -> { name: "foo", value: Nothing }
+    -- "foo=" -> { name: "foo", value: Just "" }
+    -- "foo=bar" -> { name: "foo", value: Just "bar" }
+    split s' =
+      case String.indexOf (String.Pattern "=") s' of
+        Nothing -> { name: s', value: Nothing }
+        Just index ->
+          let { after, before } = String.splitAt index s'
+          in { name: before, value: Just (String.drop 1 after) }
+  in
+    case String.stripPrefix hyphen s of
+      Nothing -> []
+      Just s' ->
+        case String.stripPrefix hyphen s' of
+          Just s'' ->
+            let { name, value } = split s''
+            in [{ name: Long name, value }]
+          _ ->
+            let { name, value } = split s'
+            in
+              map
+                (\cp -> { name: Short cp, value })
+                (String.toCodePointArray name)
