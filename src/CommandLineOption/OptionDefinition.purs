@@ -47,47 +47,60 @@ type LongName = String
 type Name = String
 
 data OptionDefinition
-  = BooleanOption Name LongName (Maybe ShortName) Help
-  | StringOption Name LongName (Maybe ShortName) Help StringOptionInfo'
+  = OptionDefinition Name UnNamedOptionDefinition
+
+data OptionInfo
+  = OptionInfo LongName (Maybe ShortName) Help
+
+data UnNamedOptionDefinition
+  = BooleanOption OptionInfo
+  | StringOption OptionInfo StringOptionInfo'
 
 type ShortName = CodePoint
 
 booleanOption :: BooleanOptionInfo -> OptionDefinition
 booleanOption info =
-  BooleanOption
+  OptionDefinition
     info.name
-    info.long
-    (map String.codePointFromChar info.short)
-    info.help
+    (BooleanOption
+      (OptionInfo
+        info.long
+        (map String.codePointFromChar info.short)
+        info.help))
 
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
 
 getDefaultValue :: OptionDefinition -> Maybe OptionValue
-getDefaultValue (BooleanOption _ _ _ _) = Just (OptionValue.fromBoolean false)
-getDefaultValue (StringOption _ _ _ _ { value }) = map OptionValue.fromString value
+getDefaultValue (OptionDefinition _ (BooleanOption _))
+  = Just (OptionValue.fromBoolean false)
+getDefaultValue (OptionDefinition _ (StringOption _ { value }))
+  = map OptionValue.fromString value
 
 getLongName :: OptionDefinition -> String
-getLongName (BooleanOption _ long _ _) = long
-getLongName (StringOption _ long _ _ _) = long
+getLongName (OptionDefinition _ (BooleanOption (OptionInfo long _ _))) = long
+getLongName (OptionDefinition _ (StringOption (OptionInfo long _ _) _)) = long
 
 getName :: OptionDefinition -> String
-getName (BooleanOption name _ _ _) = name
-getName (StringOption name _ _ _ _) = name
+getName (OptionDefinition name _) = name
 
 getShortName :: OptionDefinition -> Maybe Char
-getShortName (BooleanOption _ _ short _) = join (map charFromCodePoint short)
-getShortName (StringOption _ _ short _ _) = join (map charFromCodePoint short)
+getShortName (OptionDefinition _ (BooleanOption (OptionInfo _ short _)))
+  = join (map charFromCodePoint short)
+getShortName (OptionDefinition _ (StringOption (OptionInfo _ short _) _))
+  = join (map charFromCodePoint short)
 
 isValueRequired :: OptionDefinition -> Boolean
-isValueRequired (BooleanOption _ _ _ _) = false
-isValueRequired (StringOption _ _ _ _ _) = true
+isValueRequired (OptionDefinition _ (BooleanOption _)) = false
+isValueRequired (OptionDefinition _ (StringOption _ _)) = true
 
 stringOption :: StringOptionInfo -> OptionDefinition
 stringOption info =
-  StringOption
+  OptionDefinition
     info.name
-    info.long
-    (map String.codePointFromChar info.short)
-    info.help
-    { metavar: info.metavar, value: info.value }
+    (StringOption
+      (OptionInfo
+        info.long
+        (map String.codePointFromChar info.short)
+        info.help)
+        { metavar: info.metavar, value: info.value })
