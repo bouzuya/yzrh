@@ -3,7 +3,7 @@ module CommandLineOption
   ) where
 
 import CommandLineOption.ObjectToRecord as ObjectToRecord
-import CommandLineOption.OptionDefinition (OptionDefinition, booleanOption', stringOption')
+import CommandLineOption.OptionDefinition (NamedOptionDefinition, booleanOption', stringOption')
 import CommandLineOption.OptionDefinitionRecordToArray (booleanOption, maybeStringOption, stringOption)
 import CommandLineOption.OptionObject as OptionObject
 import Data.Either (hush)
@@ -27,7 +27,7 @@ optionDefinitions' =
   , version: booleanOption "version" (Just 'V') "show version"
   }
 
-optionDefinitions :: Array OptionDefinition
+optionDefinitions :: Array NamedOptionDefinition
 optionDefinitions =
   [ stringOption'
     { help: "input file"

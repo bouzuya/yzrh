@@ -4,7 +4,7 @@ module CommandLineOption.OptionObject
   , parse
   ) where
 
-import CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
+import CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
 import CommandLineOption.OptionValue (OptionValue)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
@@ -24,28 +24,28 @@ type OptionObject = Object OptionValue
 
 type ParsedOption = { arguments :: Array String, options :: OptionObject }
 
-addBooleanOptionValue :: OptionDefinition -> OptionObject -> OptionObject
+addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
 addBooleanOptionValue d o =
   Object.insert (getName d) (OptionValue.fromBoolean true) o
 
-addStringOptionValue :: OptionDefinition -> String -> OptionObject -> OptionObject
+addStringOptionValue :: NamedOptionDefinition -> String -> OptionObject -> OptionObject
 addStringOptionValue d v o =
   Object.insert (getName d) (OptionValue.fromString v) o
 
-defaultValues :: Array OptionDefinition -> OptionObject
+defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
   foldl
     (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
     Object.empty
     defs
 
-findByOptionName :: OptionName -> Array OptionDefinition -> Maybe OptionDefinition
+findByOptionName :: OptionName -> Array NamedOptionDefinition -> Maybe NamedOptionDefinition
 findByOptionName (Long l) =
   Array.find (\d -> getLongName d == l)
 findByOptionName (Short s) =
   Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
 
-parse :: Array OptionDefinition -> Array String -> Either String ParsedOption
+parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do
   { arguments, options, processing } <-
     foldM
