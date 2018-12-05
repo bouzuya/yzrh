@@ -2,12 +2,16 @@ module CommandLineOption.OptionDefinition
   ( BooleanOptionInfo -- TODO: hide options
   , NamedOptionDefinition
   , StringOptionInfo -- TODO: hide options
+  , TypedOptionDefinition
+  , booleanOption
   , booleanOption'
   , getDefaultValue
   , getLongName
   , getName
   , getShortName
   , isValueRequired
+  , maybeStringOption
+  , stringOption
   , stringOption'
   ) where
 
@@ -44,6 +48,8 @@ type Help = String
 
 type LongName = String
 
+type MetaVar = String
+
 type Name = String
 
 data NamedOptionDefinition
@@ -52,11 +58,21 @@ data NamedOptionDefinition
 data OptionInfo
   = OptionInfo LongName (Maybe ShortName) Help
 
+type ShortName = CodePoint
+
+data TypedOptionDefinition a
+  = TypedOptionDefinition OptionInfo (Maybe MetaVar) a
+
 data UnNamedOptionDefinition
   = BooleanOption OptionInfo OptionInfo'
   | StringOption OptionInfo OptionInfo'
 
-type ShortName = CodePoint
+booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
+booleanOption l s h =
+  TypedOptionDefinition
+    (OptionInfo l (map String.codePointFromChar s) h)
+    Nothing
+    true
 
 booleanOption' :: BooleanOptionInfo -> NamedOptionDefinition
 booleanOption' info =
@@ -94,6 +110,20 @@ getShortName (NamedOptionDefinition _ (StringOption (OptionInfo _ short _) _))
 isValueRequired :: NamedOptionDefinition -> Boolean
 isValueRequired (NamedOptionDefinition _ (BooleanOption _ _)) = false
 isValueRequired (NamedOptionDefinition _ (StringOption _ _)) = true
+
+maybeStringOption :: LongName -> Maybe Char -> MetaVar -> Help -> Maybe String -> TypedOptionDefinition (Maybe String)
+maybeStringOption l s m h v =
+  TypedOptionDefinition
+    (OptionInfo l (map String.codePointFromChar s) h)
+    (Just m)
+    v
+
+stringOption :: LongName -> Maybe Char -> MetaVar -> Help -> String -> TypedOptionDefinition String
+stringOption l s m h v =
+  TypedOptionDefinition
+    (OptionInfo l (map String.codePointFromChar s) h)
+    (Just m)
+    v
 
 stringOption' :: StringOptionInfo -> NamedOptionDefinition
 stringOption' info =

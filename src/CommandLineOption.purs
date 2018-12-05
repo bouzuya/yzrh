@@ -3,8 +3,7 @@ module CommandLineOption
   ) where
 
 import CommandLineOption.ObjectToRecord as ObjectToRecord
-import CommandLineOption.OptionDefinition (NamedOptionDefinition, booleanOption', stringOption')
-import CommandLineOption.OptionDefinitionRecordToArray (booleanOption, maybeStringOption, stringOption)
+import CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, booleanOption', maybeStringOption, stringOption, stringOption')
 import CommandLineOption.OptionObject as OptionObject
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
@@ -19,6 +18,13 @@ type CommandLineOptions =
   }
 
 -- TODO
+optionDefinitions' ::
+  { inFile :: TypedOptionDefinition (Maybe String)
+  , inFormat :: TypedOptionDefinition String
+  , outFormat :: TypedOptionDefinition String
+  , verbose :: TypedOptionDefinition Boolean
+  , version :: TypedOptionDefinition Boolean
+  }
 optionDefinitions' =
   { inFile: maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
   , inFormat: stringOption "in-format" (Just 'i') "<format>" "input file format" "json"
