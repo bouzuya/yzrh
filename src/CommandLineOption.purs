@@ -3,8 +3,8 @@ module CommandLineOption
   ) where
 
 import CommandLineOption.ObjectToRecord as ObjectToRecord
-import CommandLineOption.OptionDefinition (OptionDefinition, booleanOption, stringOption)
-import CommandLineOption.OptionDefinitionRecordToArray (booleanOption', maybeStringOption', stringOption')
+import CommandLineOption.OptionDefinition (OptionDefinition, booleanOption', stringOption')
+import CommandLineOption.OptionDefinitionRecordToArray (booleanOption, maybeStringOption, stringOption)
 import CommandLineOption.OptionObject as OptionObject
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
@@ -20,16 +20,16 @@ type CommandLineOptions =
 
 -- TODO
 optionDefinitions' =
-  { inFile: maybeStringOption' "in-file" (Just 'f') "<file>" "input file" Nothing
-  , inFormat: stringOption' "in-format" (Just 'i') "<format>" "input file format" "json"
-  , outFormat: stringOption' "out-format" (Just 'o') "<format>" "output file format" "json"
-  , verbose: booleanOption' "verbose" (Just 'v') "verbose"
-  , version: booleanOption' "version" (Just 'V') "show version"
+  { inFile: maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
+  , inFormat: stringOption "in-format" (Just 'i') "<format>" "input file format" "json"
+  , outFormat: stringOption "out-format" (Just 'o') "<format>" "output file format" "json"
+  , verbose: booleanOption "verbose" (Just 'v') "verbose"
+  , version: booleanOption "version" (Just 'V') "show version"
   }
 
 optionDefinitions :: Array OptionDefinition
 optionDefinitions =
-  [ stringOption
+  [ stringOption'
     { help: "input file"
     , long: "in-file"
     , metavar: "<file>"
@@ -37,7 +37,7 @@ optionDefinitions =
     , short: Just 'f'
     , value: Nothing
     }
-  , stringOption
+  , stringOption'
     { help: "input file format"
     , long: "in-format"
     , metavar: "<format>"
@@ -45,7 +45,7 @@ optionDefinitions =
     , short: Just 'i'
     , value: Just "json"
     }
-  , stringOption
+  , stringOption'
     { help: "output file format"
     , long: "out-format"
     , metavar: "<format>"
@@ -53,13 +53,13 @@ optionDefinitions =
     , short: Just 'o'
     , value: Just "json"
     }
-  , booleanOption
+  , booleanOption'
     { help: "verbose"
     , long: "verbose"
     , name: "verbose"
     , short: Just 'v'
     }
-  , booleanOption
+  , booleanOption'
     { help: "show version"
     , long: "version"
     , name: "version"

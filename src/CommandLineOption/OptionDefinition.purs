@@ -2,13 +2,13 @@ module CommandLineOption.OptionDefinition
   ( BooleanOptionInfo -- TODO: hide options
   , OptionDefinition
   , StringOptionInfo -- TODO: hide options
-  , booleanOption
+  , booleanOption'
   , getDefaultValue
   , getLongName
   , getName
   , getShortName
   , isValueRequired
-  , stringOption
+  , stringOption'
   ) where
 
 import CommandLineOption.OptionValue (OptionValue)
@@ -58,8 +58,8 @@ data UnNamedOptionDefinition
 
 type ShortName = CodePoint
 
-booleanOption :: BooleanOptionInfo -> OptionDefinition
-booleanOption info =
+booleanOption' :: BooleanOptionInfo -> OptionDefinition
+booleanOption' info =
   OptionDefinition
     info.name
     (BooleanOption
@@ -95,8 +95,8 @@ isValueRequired :: OptionDefinition -> Boolean
 isValueRequired (OptionDefinition _ (BooleanOption _ _)) = false
 isValueRequired (OptionDefinition _ (StringOption _ _)) = true
 
-stringOption :: StringOptionInfo -> OptionDefinition
-stringOption info =
+stringOption' :: StringOptionInfo -> OptionDefinition
+stringOption' info =
   OptionDefinition
     info.name
     (StringOption

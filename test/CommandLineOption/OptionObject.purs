@@ -2,7 +2,7 @@ module Test.CommandLineOption.OptionObject
   ( tests
   ) where
 
-import CommandLineOption.OptionDefinition (booleanOption, stringOption)
+import CommandLineOption.OptionDefinition (booleanOption', stringOption')
 import CommandLineOption.OptionObject (parse)
 import CommandLineOption.OptionValue as OptionValue
 import Data.Either (Either(..))
@@ -18,7 +18,7 @@ tests = suite "CommandLineOption.OptionObject" do
   let
     f = parse
     defs =
-      [ stringOption
+      [ stringOption'
         { help: "a string option"
         , long: "a-string"
         , metavar: "<a>"
@@ -26,7 +26,7 @@ tests = suite "CommandLineOption.OptionObject" do
         , short: Just 'a'
         , value: Just "a1"
         }
-      , stringOption
+      , stringOption'
         { help: "b string option"
         , long: "b-string"
         , metavar: "<b>"
@@ -34,13 +34,13 @@ tests = suite "CommandLineOption.OptionObject" do
         , short: Just 'b'
         , value: Nothing
         }
-      , booleanOption
+      , booleanOption'
         { help: "c boolean option"
         , long: "c-boolean"
         , name: "cBoolean"
         , short: Just 'c'
         }
-      , booleanOption
+      , booleanOption'
         { help: "d boolean option"
         , long: "d-boolean"
         , name: "dBoolean"
