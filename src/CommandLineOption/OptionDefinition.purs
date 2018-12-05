@@ -35,8 +35,8 @@ type StringOptionInfo =
   , value :: Maybe String
   }
 
-type StringOptionInfo' =
-  { metavar :: String
+type OptionInfo' =
+  { metavar :: Maybe String
   , value :: Maybe String
   }
 
@@ -53,8 +53,8 @@ data OptionInfo
   = OptionInfo LongName (Maybe ShortName) Help
 
 data UnNamedOptionDefinition
-  = BooleanOption OptionInfo
-  | StringOption OptionInfo StringOptionInfo'
+  = BooleanOption OptionInfo OptionInfo'
+  | StringOption OptionInfo OptionInfo'
 
 type ShortName = CodePoint
 
@@ -66,32 +66,33 @@ booleanOption info =
       (OptionInfo
         info.long
         (map String.codePointFromChar info.short)
-        info.help))
+        info.help)
+      { metavar: Nothing, value: Nothing })
 
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
 
 getDefaultValue :: OptionDefinition -> Maybe OptionValue
-getDefaultValue (OptionDefinition _ (BooleanOption _))
+getDefaultValue (OptionDefinition _ (BooleanOption _ _))
   = Just (OptionValue.fromBoolean false)
 getDefaultValue (OptionDefinition _ (StringOption _ { value }))
   = map OptionValue.fromString value
 
 getLongName :: OptionDefinition -> String
-getLongName (OptionDefinition _ (BooleanOption (OptionInfo long _ _))) = long
+getLongName (OptionDefinition _ (BooleanOption (OptionInfo long _ _) _)) = long
 getLongName (OptionDefinition _ (StringOption (OptionInfo long _ _) _)) = long
 
 getName :: OptionDefinition -> String
 getName (OptionDefinition name _) = name
 
 getShortName :: OptionDefinition -> Maybe Char
-getShortName (OptionDefinition _ (BooleanOption (OptionInfo _ short _)))
+getShortName (OptionDefinition _ (BooleanOption (OptionInfo _ short _) _))
   = join (map charFromCodePoint short)
 getShortName (OptionDefinition _ (StringOption (OptionInfo _ short _) _))
   = join (map charFromCodePoint short)
 
 isValueRequired :: OptionDefinition -> Boolean
-isValueRequired (OptionDefinition _ (BooleanOption _)) = false
+isValueRequired (OptionDefinition _ (BooleanOption _ _)) = false
 isValueRequired (OptionDefinition _ (StringOption _ _)) = true
 
 stringOption :: StringOptionInfo -> OptionDefinition
@@ -103,4 +104,4 @@ stringOption info =
         info.long
         (map String.codePointFromChar info.short)
         info.help)
-        { metavar: info.metavar, value: info.value })
+        { metavar: Just info.metavar, value: info.value })
