@@ -5,6 +5,7 @@ module Test.CommandLineOption
 import CommandLineOption (parse)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
+import Test.CommandLineOption.OptionDefinitionRecordToArray as OptionDefinitionRecordToArray
 import Test.CommandLineOption.OptionObject as OptionObject
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
@@ -68,4 +69,5 @@ tests = suite "CommandLineOption" do
     Assert.equal
       (Just defaults { inFile = "routes.rb", verbose = true, version = true })
       (parse ["-f=routes.rb", "-vV"])
+  OptionDefinitionRecordToArray.tests
   OptionObject.tests
