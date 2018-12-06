@@ -3,8 +3,8 @@ module CommandLineOption
   ) where
 
 import CommandLineOption.ObjectToRecord as ObjectToRecord
-import CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, booleanOption', maybeStringOption, stringOption, stringOption')
-import CommandLineOption.OptionDefinitionRecordToArray as ObjectDefinitionRecordToArray
+import CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
+import CommandLineOption.RecordToArray as RecordToArray
 import CommandLineOption.OptionObject as OptionObject
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
@@ -35,6 +35,6 @@ optionDefinitions =
 
 parse :: Array String -> Maybe CommandLineOptions
 parse ss = do
-  defs <- pure (ObjectDefinitionRecordToArray.toArray optionDefinitions)
+  defs <- pure (RecordToArray.toArray optionDefinitions)
   o <- hush (map _.options (OptionObject.parse defs ss))
   ObjectToRecord.toRecord o

@@ -22,6 +22,7 @@ module CommandLineOption.OptionDefinition
 
 import CommandLineOption.OptionValue (OptionValue)
 import CommandLineOption.OptionValue as OptionValue
+import CommandLineOption.RecordToArray as RecordToArray
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String as String
@@ -59,6 +60,21 @@ type Name = String
 
 data NamedOptionDefinition
   = NamedOptionDefinition Name OptionDefinition
+
+instance toElementBoolean ::
+  RecordToArray.ToElement (TypedOptionDefinition Boolean) NamedOptionDefinition where
+  toElement name a =
+    withName name (booleanOptionFromTyped a)
+
+instance toElementMaybeString ::
+  RecordToArray.ToElement (TypedOptionDefinition (Maybe String)) NamedOptionDefinition where
+  toElement name a =
+    withName name (maybeStringOptionFromTyped a)
+
+instance toElementString ::
+  RecordToArray.ToElement (TypedOptionDefinition String) NamedOptionDefinition where
+  toElement name a =
+    withName name (stringOptionFromTyped a)
 
 derive instance eqNamedOptionDefinition :: Eq NamedOptionDefinition
 

@@ -54,6 +54,19 @@ instance optionRecordBuilderConsString ::
       v = getStringValue k o
       t = RLProxy :: RLProxy t
 
+instance optionRecordBuilderConsMaybeString ::
+  ( IsSymbol l
+  , OptionRecordBuilder t from from'
+  , Row.Lacks l from'
+  , Row.Cons l String from' to -- TODO
+  ) => OptionRecordBuilder (Cons l (Maybe String) t) from to where
+  builder _ o = compose <$> (map (Builder.insert l) v) <*> (builder t o)
+    where
+      l = SProxy :: SProxy l
+      k = reflectSymbol l
+      v = getStringValue k o
+      t = RLProxy :: RLProxy t
+
 instance optionRecordBuilderNil :: OptionRecordBuilder Nil () () where
   builder _ _ = pure identity
 

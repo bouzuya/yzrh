@@ -5,7 +5,7 @@ module Test.CommandLineOption.OptionDefinitionRecordToArray
 import Prelude
 
 import CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, booleanOption', maybeStringOption, stringOption, stringOption')
-import CommandLineOption.OptionDefinitionRecordToArray (toArray)
+import CommandLineOption.RecordToArray (toArray)
 import Data.Maybe (Maybe(..))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
