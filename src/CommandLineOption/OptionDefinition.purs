@@ -1,9 +1,11 @@
 module CommandLineOption.OptionDefinition
   ( BooleanOptionInfo -- TODO: hide options
   , NamedOptionDefinition
+  , OptionDefinition -- TODO
   , StringOptionInfo -- TODO: hide options
   , TypedOptionDefinition
   , booleanOption
+  , booleanOptionFromTyped
   , booleanOption'
   , getDefaultValue
   , getLongName
@@ -11,8 +13,11 @@ module CommandLineOption.OptionDefinition
   , getShortName
   , isValueRequired
   , maybeStringOption
+  , maybeStringOptionFromTyped
   , stringOption
+  , stringOptionFromTyped
   , stringOption'
+  , withName -- TODO
   ) where
 
 import CommandLineOption.OptionValue (OptionValue)
@@ -21,7 +26,7 @@ import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String as String
 import Data.String.CodeUnits as CodeUnit
-import Prelude (join, map)
+import Prelude (class Eq, join, map)
 
 type BooleanOptionInfo =
   { help :: String
@@ -53,19 +58,25 @@ type MetaVar = String
 type Name = String
 
 data NamedOptionDefinition
-  = NamedOptionDefinition Name UnNamedOptionDefinition
+  = NamedOptionDefinition Name OptionDefinition
+
+derive instance eqNamedOptionDefinition :: Eq NamedOptionDefinition
+
+data OptionDefinition
+  = BooleanOption OptionInfo OptionInfo'
+  | StringOption OptionInfo OptionInfo'
+
+derive instance eqOptionDefinition :: Eq OptionDefinition
 
 data OptionInfo
   = OptionInfo LongName (Maybe ShortName) Help
+
+derive instance eqOptionInfo :: Eq OptionInfo
 
 type ShortName = CodePoint
 
 data TypedOptionDefinition a
   = TypedOptionDefinition OptionInfo (Maybe MetaVar) a
-
-data UnNamedOptionDefinition
-  = BooleanOption OptionInfo OptionInfo'
-  | StringOption OptionInfo OptionInfo'
 
 booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
 booleanOption l s h =
@@ -74,9 +85,15 @@ booleanOption l s h =
     Nothing
     true
 
+booleanOptionFromTyped :: TypedOptionDefinition Boolean -> OptionDefinition
+booleanOptionFromTyped (TypedOptionDefinition info metavar _) =
+  BooleanOption
+    info
+    { metavar, value: Nothing }
+
 booleanOption' :: BooleanOptionInfo -> NamedOptionDefinition
 booleanOption' info =
-  NamedOptionDefinition
+  withName
     info.name
     (BooleanOption
       (OptionInfo
@@ -118,6 +135,12 @@ maybeStringOption l s m h v =
     (Just m)
     v
 
+maybeStringOptionFromTyped :: TypedOptionDefinition (Maybe String) -> OptionDefinition
+maybeStringOptionFromTyped (TypedOptionDefinition info metavar value) =
+  StringOption
+    info
+    { metavar, value }
+
 stringOption :: LongName -> Maybe Char -> MetaVar -> Help -> String -> TypedOptionDefinition String
 stringOption l s m h v =
   TypedOptionDefinition
@@ -125,9 +148,15 @@ stringOption l s m h v =
     (Just m)
     v
 
+stringOptionFromTyped :: TypedOptionDefinition String -> OptionDefinition
+stringOptionFromTyped (TypedOptionDefinition info metavar value) =
+  StringOption
+    info
+    { metavar, value: Just value }
+
 stringOption' :: StringOptionInfo -> NamedOptionDefinition
 stringOption' info =
-  NamedOptionDefinition
+  withName
     info.name
     (StringOption
       (OptionInfo
@@ -135,3 +164,6 @@ stringOption' info =
         (map String.codePointFromChar info.short)
         info.help)
         { metavar: Just info.metavar, value: info.value })
+
+withName :: String -> OptionDefinition -> NamedOptionDefinition
+withName = NamedOptionDefinition
