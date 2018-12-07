@@ -2,9 +2,9 @@ module Test.CommandLineOption.OptionObject
   ( tests
   ) where
 
-import CommandLineOption.OptionDefinition (booleanOption', stringOption')
-import CommandLineOption.OptionObject (parse)
-import CommandLineOption.OptionValue as OptionValue
+import Bouzuya.CommandLineOption.OptionDefinition (booleanOption', stringOption')
+import Bouzuya.CommandLineOption.OptionObject (parse)
+import Bouzuya.CommandLineOption.OptionValue as OptionValue
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
@@ -14,7 +14,7 @@ import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
 tests :: TestSuite
-tests = suite "CommandLineOption.OptionObject" do
+tests = suite "Bouzuya.CommandLineOption.OptionObject" do
   let
     f = parse
     defs =

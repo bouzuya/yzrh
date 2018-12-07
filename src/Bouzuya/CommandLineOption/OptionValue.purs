@@ -1,4 +1,4 @@
-module CommandLineOption.OptionValue
+module Bouzuya.CommandLineOption.OptionValue
   ( OptionValue
   , fromBoolean
   , fromString

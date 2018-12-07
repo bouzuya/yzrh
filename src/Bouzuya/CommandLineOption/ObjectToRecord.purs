@@ -1,12 +1,12 @@
-module CommandLineOption.ObjectToRecord
+module Bouzuya.CommandLineOption.ObjectToRecord
   ( class OptionRecordBuilder
   , builder
   , toRecord
   ) where
 
-import CommandLineOption.OptionObject (OptionObject)
-import CommandLineOption.OptionValue (OptionValue)
-import CommandLineOption.OptionValue as OptionValue
+import Bouzuya.CommandLineOption.OptionObject (OptionObject)
+import Bouzuya.CommandLineOption.OptionValue (OptionValue)
+import Bouzuya.CommandLineOption.OptionValue as OptionValue
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Foreign.Object (Object)

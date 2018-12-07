@@ -1,17 +1,17 @@
-module CommandLineOption
+module Bouzuya.CommandLineOption
   ( parse
   ) where
 
-import CommandLineOption.ObjectToRecord as ObjectToRecord
-import CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
-import CommandLineOption.RecordToArray as RecordToArray
-import CommandLineOption.OptionObject as OptionObject
+import Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
+import Bouzuya.CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
+import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
+import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
 import Prelude (bind, map, pure)
 
 type CommandLineOptions =
-  { inFile :: String
+  { inFile :: String -- TODO
   , inFormat :: String
   , outFormat :: String
   , verbose :: Boolean
@@ -38,3 +38,10 @@ parse ss = do
   defs <- pure (RecordToArray.toArray optionDefinitions)
   o <- hush (map _.options (OptionObject.parse defs ss))
   ObjectToRecord.toRecord o
+
+-- TODO
+-- parse' :: forall a b. a -> Array String -> Either String b
+-- parse' defs ss = do
+--   defs <- pure (RecordToArray.toArray optionDefinitions)
+--   o <- hush (map _.options (OptionObject.parse defs ss))
+--   ObjectToRecord.toRecord o

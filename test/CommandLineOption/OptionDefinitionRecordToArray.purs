@@ -2,16 +2,16 @@ module Test.CommandLineOption.OptionDefinitionRecordToArray
   ( tests
   ) where
 
-import Prelude
+import Prelude ((==))
 
-import CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, booleanOption', maybeStringOption, stringOption, stringOption')
-import CommandLineOption.RecordToArray (toArray)
+import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, booleanOption', maybeStringOption, stringOption, stringOption')
+import Bouzuya.CommandLineOption.RecordToArray (toArray)
 import Data.Maybe (Maybe(..))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
 tests :: TestSuite
-tests = suite "CommandLineOption.OptionDefinitionRecordToArray" do
+tests = suite "Bouzuya.CommandLineOption.OptionDefinitionRecordToArray" do
   let
     f = toArray
 

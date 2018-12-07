@@ -1,4 +1,4 @@
-module CommandLineOption.RecordToArray
+module Bouzuya.CommandLineOption.RecordToArray
   ( class ArrayBuilder
   , class ToElement
   , build

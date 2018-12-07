@@ -1,4 +1,4 @@
-module CommandLineOption.OptionDefinition
+module Bouzuya.CommandLineOption.OptionDefinition
   ( BooleanOptionInfo -- TODO: hide options
   , NamedOptionDefinition
   , OptionDefinition -- TODO
@@ -20,9 +20,9 @@ module CommandLineOption.OptionDefinition
   , withName -- TODO
   ) where
 
-import CommandLineOption.OptionValue (OptionValue)
-import CommandLineOption.OptionValue as OptionValue
-import CommandLineOption.RecordToArray as RecordToArray
+import Bouzuya.CommandLineOption.OptionValue (OptionValue)
+import Bouzuya.CommandLineOption.OptionValue as OptionValue
+import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String as String

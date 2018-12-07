@@ -1,12 +1,12 @@
-module CommandLineOption.OptionObject
+module Bouzuya.CommandLineOption.OptionObject
   ( OptionObject
   , ParsedOption
   , parse
   ) where
 
-import CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
-import CommandLineOption.OptionValue (OptionValue)
-import CommandLineOption.OptionValue as OptionValue
+import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
+import Bouzuya.CommandLineOption.OptionValue (OptionValue)
+import Bouzuya.CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
 import Data.Array as Array
 import Data.Either (Either(..), note)
