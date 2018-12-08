@@ -2,7 +2,7 @@ module Test.CommandLineOption
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption (parse)
+import CommandLineOption (parse)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
 import Test.CommandLineOption.OptionDefinitionRecordToArray as OptionDefinitionRecordToArray
