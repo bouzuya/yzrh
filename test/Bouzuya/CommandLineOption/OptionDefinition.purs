@@ -10,7 +10,7 @@ import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
 tests :: TestSuite
-tests = suite "Bouzuya.CommandLineOption.Optiondefinition" do
+tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
   let
     -- public apis
     s :: TypedOptionDefinition String
