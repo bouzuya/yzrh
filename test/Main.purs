@@ -4,6 +4,7 @@ module Test.Main
 
 import Effect (Effect)
 import Prelude (Unit, discard)
+import Test.Bouzuya.CommandLineOption as BouzuyaCommandLineOption
 import Test.CommandLineOption as CommandLineOption
 import Test.PathTemplate as PathTemplate
 import Test.RouteConfig as RouteConfig
@@ -15,6 +16,7 @@ main :: Effect Unit
 main = runTest do
   test "dummy" do
     Assert.equal true true
+  BouzuyaCommandLineOption.tests
   CommandLineOption.tests
   PathTemplate.tests
   RouteConfig.tests
