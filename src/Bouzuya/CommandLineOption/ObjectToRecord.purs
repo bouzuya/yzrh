@@ -5,66 +5,57 @@ module Bouzuya.CommandLineOption.ObjectToRecord
   ) where
 
 import Bouzuya.CommandLineOption.OptionObject (OptionObject)
-import Bouzuya.CommandLineOption.OptionValue (OptionValue)
-import Bouzuya.CommandLineOption.OptionValue as OptionValue
+import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Maybe (Maybe)
-import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Foreign.Object (Object)
-import Foreign.Object as Object
-import Prelude (compose, identity, join, map, pure, (<$>), (<*>))
+import Data.Symbol as Symbol
+import Prelude (compose, identity, map, pure, (<$>), (<*>))
 import Prim.Row as Row
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Record.Builder (Builder)
 import Record.Builder as Builder
 import Type.Data.RowList (RLProxy(..))
 
-getBooleanValue :: String -> Object OptionValue -> Maybe Boolean
-getBooleanValue k o = join (map OptionValue.getBooleanValue (Object.lookup k o))
-
-getStringValue :: String -> Object OptionValue -> Maybe String
-getStringValue k o = join (map OptionValue.getStringValue (Object.lookup k o))
-
 class OptionRecordBuilder (list :: RowList) (from :: # Type) (to :: # Type)
   | list -> from to where
-  builder :: RLProxy list -> Object OptionValue -> Maybe (Builder (Record from) (Record to))
+  builder :: RLProxy list -> OptionObject -> Maybe (Builder (Record from) (Record to))
 
 instance optionRecordBuilderConsBoolean ::
-  ( IsSymbol l
-  , OptionRecordBuilder t from from'
+  ( OptionRecordBuilder t from from'
   , Row.Lacks l from'
   , Row.Cons l Boolean from' to
+  , Symbol.IsSymbol l
   ) => OptionRecordBuilder (Cons l Boolean t) from to where
   builder _ o = compose <$> (map (Builder.insert l) v) <*> (builder t o)
     where
-      l = SProxy :: SProxy l
-      k = reflectSymbol l
-      v = getBooleanValue k o
+      l = Symbol.SProxy :: Symbol.SProxy l
+      k = Symbol.reflectSymbol l
+      v = OptionObject.getBooleanValue k o
       t = RLProxy :: RLProxy t
 
 instance optionRecordBuilderConsString ::
-  ( IsSymbol l
-  , OptionRecordBuilder t from from'
+  ( OptionRecordBuilder t from from'
   , Row.Lacks l from'
   , Row.Cons l String from' to
+  , Symbol.IsSymbol l
   ) => OptionRecordBuilder (Cons l String t) from to where
   builder _ o = compose <$> (map (Builder.insert l) v) <*> (builder t o)
     where
-      l = SProxy :: SProxy l
-      k = reflectSymbol l
-      v = getStringValue k o
+      l = Symbol.SProxy :: Symbol.SProxy l
+      k = Symbol.reflectSymbol l
+      v = OptionObject.getStringValue k o
       t = RLProxy :: RLProxy t
 
 instance optionRecordBuilderConsMaybeString ::
-  ( IsSymbol l
-  , OptionRecordBuilder t from from'
+  ( OptionRecordBuilder t from from'
   , Row.Lacks l from'
   , Row.Cons l (Maybe String) from' to
+  , Symbol.IsSymbol l
   ) => OptionRecordBuilder (Cons l (Maybe String) t) from to where
   builder _ o = compose <$> pure (Builder.insert l v) <*> (builder t o)
     where
-      l = SProxy :: SProxy l
-      k = reflectSymbol l
-      v = getStringValue k o
+      l = Symbol.SProxy :: Symbol.SProxy l
+      k = Symbol.reflectSymbol l
+      v = OptionObject.getStringValue k o
       t = RLProxy :: RLProxy t
 
 instance optionRecordBuilderNil :: OptionRecordBuilder Nil () () where

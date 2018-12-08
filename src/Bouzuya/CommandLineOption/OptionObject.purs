@@ -1,6 +1,8 @@
 module Bouzuya.CommandLineOption.OptionObject
   ( OptionObject
   , ParsedOption
+  , getBooleanValue
+  , getStringValue
   , parse
   ) where
 
@@ -16,7 +18,7 @@ import Data.String (CodePoint)
 import Data.String as String
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (bind, const, map, not, unit, (==))
+import Prelude (bind, const, map, not, unit, (==), (>>=))
 
 data OptionName = Long String | Short CodePoint
 
@@ -44,6 +46,12 @@ findByOptionName (Long l) =
   Array.find (\d -> getLongName d == l)
 findByOptionName (Short s) =
   Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
+
+getBooleanValue :: String -> Object OptionValue -> Maybe Boolean
+getBooleanValue k o = Object.lookup k o >>= OptionValue.getBooleanValue
+
+getStringValue :: String -> Object OptionValue -> Maybe String
+getStringValue k o = Object.lookup k o >>= OptionValue.getStringValue
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do
