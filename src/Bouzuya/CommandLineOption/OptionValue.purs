@@ -6,9 +6,8 @@ module Bouzuya.CommandLineOption.OptionValue
   , getStringValue
   ) where
 
-import Prelude
-
 import Data.Maybe (Maybe(..))
+import Prelude (class Eq, class Show, eq, show)
 
 data OptionValue
   = BooleanValue Boolean
