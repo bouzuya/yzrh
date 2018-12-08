@@ -1,12 +1,12 @@
 module Bouzuya.CommandLineOption.OptionDefinition
-  ( BooleanOptionInfo -- TODO: hide options
+  ( BooleanOptionInfo -- TODO: delete
   , NamedOptionDefinition
   , OptionDefinition -- TODO
-  , StringOptionInfo -- TODO: hide options
+  , StringOptionInfo -- TODO: delete
   , TypedOptionDefinition
   , booleanOption
   , booleanOptionFromTyped
-  , booleanOption'
+  , booleanOption' -- TODO: delete
   , getDefaultValue
   , getLongName
   , getName
@@ -16,7 +16,7 @@ module Bouzuya.CommandLineOption.OptionDefinition
   , maybeStringOptionFromTyped
   , stringOption
   , stringOptionFromTyped
-  , stringOption'
+  , stringOption' -- TODO: delete
   , withName -- TODO
   ) where
 

@@ -7,9 +7,10 @@ import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, stringOption)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
-import Test.CommandLineOption.ObjectToRecord as ObjectToRecord
-import Test.CommandLineOption.OptionObject as OptionObject
-import Test.CommandLineOption.RecordToArray as RecordToArray
+import Test.Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
+import Test.Bouzuya.CommandLineOption.OptionDefinition as OptionDefinition
+import Test.Bouzuya.CommandLineOption.OptionObject as OptionObject
+import Test.Bouzuya.CommandLineOption.RecordToArray as RecordToArray
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
@@ -26,5 +27,6 @@ tests = suite "Bouzuya.CommandLineOption" do
       (Right { arguments: ["foo", "bar"], options: { s: "a", b: true } })
       (parse defs argv)
   ObjectToRecord.tests
+  OptionDefinition.tests
   OptionObject.tests
   RecordToArray.tests

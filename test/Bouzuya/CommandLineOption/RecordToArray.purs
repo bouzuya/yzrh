@@ -1,4 +1,4 @@
-module Test.CommandLineOption.RecordToArray
+module Test.Bouzuya.CommandLineOption.RecordToArray
   ( tests
   ) where
 

@@ -1,4 +1,4 @@
-module Test.CommandLineOption.ObjectToRecord
+module Test.Bouzuya.CommandLineOption.ObjectToRecord
   ( tests
   ) where
 
@@ -13,11 +13,11 @@ import Test.Unit.Assert as Assert
 
 tests :: TestSuite
 tests = suite "Bouzuya.CommandLineOption.ObjectToRecord" do
-  test "" do
+  test "toRecord" do
     let
       obj =
         Object.fromFoldable
           [ Tuple "k1" (OptionValue.fromString "v1")
           , Tuple "k2" (OptionValue.fromBoolean true)
           ]
-    Assert.assert "" (toRecord obj == Just { k1: "v1", k2: true })
+    Assert.assert "toRecord" (toRecord obj == Just { k1: "v1", k2: true })

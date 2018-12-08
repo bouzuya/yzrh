@@ -1,4 +1,4 @@
-module Test.CommandLineOption.OptionObject
+module Test.Bouzuya.CommandLineOption.OptionObject
   ( tests
   ) where
 
