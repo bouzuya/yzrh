@@ -26,10 +26,7 @@ instance arrayBuilderCons ::
   , ToElement ty ty'
   ) => ArrayBuilder (Cons l ty t) from to ty' where
   build _ o a =
-    build
-      t
-      (Record.delete l o)
-      (Array.snoc a (toElement k v))
+    build t (Record.delete l o) (Array.snoc a (toElement k v))
     where
       l = SProxy :: SProxy l
       k = reflectSymbol l
@@ -38,6 +35,9 @@ instance arrayBuilderCons ::
 
 instance arrayBuilderNil :: ArrayBuilder Nil () () ty' where
   build _ _ a = a
+
+class ToElement a b where
+  toElement :: String -> a -> b
 
 toArray ::
   forall rows list ty
@@ -48,6 +48,3 @@ toArray ::
 toArray obj = build list obj []
   where
     list = RLProxy :: RLProxy list
-
-class ToElement (from :: Type) (to :: Type) | from -> to where
-  toElement :: String -> from -> to
