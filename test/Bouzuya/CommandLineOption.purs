@@ -3,7 +3,7 @@ module Test.Bouzuya.CommandLineOption
   ) where
 
 import Bouzuya.CommandLineOption (parse)
-import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, stringOption)
+import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, maybeStringOption, stringOption)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
@@ -21,11 +21,20 @@ tests = suite "Bouzuya.CommandLineOption" do
       defs =
         { s: stringOption "str" (Just 's') "<STRING>" "string option" "default"
         , b: booleanOption "bool" (Just 'b') "boolean option"
+        , m: maybeStringOption "maybe" (Just 'm') "<MAYBE>" "maybe option" (Just "maybe default")
         }
-      argv = ["--str", "a", "-b", "foo", "bar"]
     Assert.equal
-      (Right { arguments: ["foo", "bar"], options: { s: "a", b: true } })
-      (parse defs argv)
+      (Right
+        { arguments: ["foo", "bar"]
+        , options: { s: "a", b: true, m: Just "c" }
+        })
+      (parse defs ["--str", "a", "-b", "-m", "c", "foo", "bar"])
+    Assert.equal
+      (Right
+        { arguments: []
+        , options: { s: "a", b: false, m: Just "maybe default" }
+        })
+      (parse defs ["--str", "a"])
   ObjectToRecord.tests
   OptionDefinition.tests
   OptionObject.tests
