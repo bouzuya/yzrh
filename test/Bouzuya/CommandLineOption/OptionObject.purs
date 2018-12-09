@@ -63,7 +63,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
               Just v -> Just (Tuple k v))
           es)
     u :: OptionObject -> OptionObject -> OptionObject
-    u = OptionObject.union
+    u = OptionObject.merge
     s :: String -> String -> Tuple String (Maybe String)
     s k v = Tuple k (Just v)
     b :: String -> Boolean -> Tuple String (Maybe String)

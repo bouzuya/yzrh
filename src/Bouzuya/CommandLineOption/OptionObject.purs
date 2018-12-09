@@ -4,25 +4,25 @@ module Bouzuya.CommandLineOption.OptionObject
   , fromFoldable -- TODO: remove
   , getBooleanValue
   , getStringValue
+  , merge -- TODO: remove
   , parse
-  , union -- TODO: remove
   ) where
 
 import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
 import Data.Array as Array
 import Data.Either (Either(..), note)
-import Data.Foldable (class Foldable, foldM, foldlDefault)
-import Data.Maybe (Maybe(..), isNothing)
+import Data.Foldable (class Foldable, foldl, foldM, foldlDefault)
+import Data.Maybe (Maybe(..), fromMaybe, isNothing)
 import Data.String (CodePoint)
 import Data.String as String
-import Data.Tuple (Tuple)
+import Data.Tuple (Tuple(..))
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (class Eq, class Show, bind, const, eq, map, not, pure, show, unit, (<<<), (<>), (==), (>>=))
+import Prelude (class Eq, class Functor, class Show, bind, const, map, not, pure, show, unit, (<>), (==))
 
 data OptionName = Long String | Short CodePoint
 
-newtype OptionObject = OptionObject (Object String)
+newtype OptionObject = OptionObject (Object (Array String))
 
 derive instance eqOptionObject :: Eq OptionObject
 
@@ -33,17 +33,25 @@ type ParsedOption = { arguments :: Array String, options :: OptionObject }
 
 addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
 addBooleanOptionValue d (OptionObject o) =
-  OptionObject (Object.insert (getName d) "true" o)
+  OptionObject
+    (Object.alter
+      (\m -> Just ((fromMaybe [] m) <> ["true"])) -- TODO
+      (getName d)
+      o)
 
 addStringOptionValue :: NamedOptionDefinition -> String -> OptionObject -> OptionObject
 addStringOptionValue d v (OptionObject o) =
-  OptionObject (Object.insert (getName d) v o)
+  OptionObject
+    (Object.alter
+      (\m -> Just ((fromMaybe [] m) <> [v]))
+      (getName d)
+      o)
 
 defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
   OptionObject
     (foldlDefault
-      (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
+      (\o d -> Object.alter (const (map Array.singleton (getDefaultValue d))) (getName d) o)
       Object.empty
       defs)
 
@@ -54,24 +62,38 @@ findByOptionName (Short s) =
   Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
 
 -- TODO: remove
-fromFoldable :: forall f. Foldable f => f (Tuple String String) -> OptionObject
-fromFoldable f = OptionObject (Object.fromFoldable f)
+fromFoldable ::
+  forall f
+   . Foldable f
+  => Functor f
+  => f (Tuple String String)
+  -> OptionObject
+fromFoldable f =
+  OptionObject (Object.fromFoldable (map g f))
+  where
+    g (Tuple k v) = Tuple k (Array.singleton v)
 
 getBooleanValue :: String -> OptionObject -> Maybe Boolean
-getBooleanValue k (OptionObject o) = Object.lookup k o >>= pure <<< eq "true"
+getBooleanValue k (OptionObject o) = do
+  a <- Object.lookup k o
+  v <- Array.head a
+  pure (v == "true") -- TODO
 
 getStringValue :: String -> OptionObject -> Maybe String
-getStringValue k (OptionObject o) = Object.lookup k o
+getStringValue k (OptionObject o) = do
+  a <- Object.lookup k o
+  v <- Array.head a
+  pure v
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do
   { arguments, options, processing } <-
     foldM
       f
-      { arguments: [], options: defaultValues defs, processing: Nothing }
+      { arguments: [], options: OptionObject Object.empty, processing: Nothing }
       ss
   _ <- assert' "no metavar (end)" (isNothing processing)
-  Right { arguments, options }
+  Right { arguments, options: merge options (defaultValues defs) }
   where
     assert' s b = if b then Right unit else Left s
     f a@{ arguments, options, processing: Nothing } s =
@@ -142,5 +164,14 @@ parse' s =
                 (\cp -> { name: Short cp, value })
                 (String.toCodePointArray name)
 
-union :: OptionObject -> OptionObject -> OptionObject
-union (OptionObject o1) (OptionObject o2) = OptionObject (Object.union o1 o2)
+-- TODO: remove
+merge :: OptionObject -> OptionObject -> OptionObject
+merge (OptionObject o1) (OptionObject o2) =
+  OptionObject
+    (foldl
+      (\o k ->
+        case Object.lookup k o1 of
+          Nothing -> o
+          Just v -> Object.insert k v o)
+      o2
+      (Object.keys o1))

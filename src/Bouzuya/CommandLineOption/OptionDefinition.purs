@@ -60,17 +60,23 @@ data NamedOptionDefinition
   = NamedOptionDefinition Name OptionDefinition
 
 instance toElementBoolean ::
-  RecordToArray.ToElement (TypedOptionDefinition Boolean) NamedOptionDefinition where
+  RecordToArray.ToElement
+    (TypedOptionDefinition Boolean)
+    NamedOptionDefinition where
   toElement name a =
     withName name (booleanOptionFromTyped a)
 
 instance toElementMaybeString ::
-  RecordToArray.ToElement (TypedOptionDefinition (Maybe String)) NamedOptionDefinition where
+  RecordToArray.ToElement
+    (TypedOptionDefinition (Maybe String))
+    NamedOptionDefinition where
   toElement name a =
     withName name (maybeStringOptionFromTyped a)
 
 instance toElementString ::
-  RecordToArray.ToElement (TypedOptionDefinition String) NamedOptionDefinition where
+  RecordToArray.ToElement
+    (TypedOptionDefinition String)
+    NamedOptionDefinition where
   toElement name a =
     withName name (stringOptionFromTyped a)
 
