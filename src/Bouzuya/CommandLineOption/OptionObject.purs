@@ -1,40 +1,51 @@
 module Bouzuya.CommandLineOption.OptionObject
-  ( ParsedOption
+  ( OptionObject
+  , ParsedOption
+  , fromFoldable -- TODO: remove
   , getBooleanValue
   , getStringValue
   , parse
+  , union -- TODO: remove
   ) where
 
 import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
-import Data.Array (foldl)
 import Data.Array as Array
 import Data.Either (Either(..), note)
-import Data.Foldable (foldM)
+import Data.Foldable (class Foldable, foldM, foldlDefault)
 import Data.Maybe (Maybe(..), isNothing)
 import Data.String (CodePoint)
 import Data.String as String
+import Data.Tuple (Tuple)
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (bind, const, eq, map, not, pure, unit, (<<<), (==), (>>=))
+import Prelude (class Eq, class Show, bind, const, eq, map, not, pure, show, unit, (<<<), (<>), (==), (>>=))
 
 data OptionName = Long String | Short CodePoint
 
-type ParsedOption = { arguments :: Array String, options :: Object String }
+newtype OptionObject = OptionObject (Object String)
 
-addBooleanOptionValue :: NamedOptionDefinition -> Object String -> Object String
-addBooleanOptionValue d o =
-  Object.insert (getName d) "true" o
+derive instance eqOptionObject :: Eq OptionObject
 
-addStringOptionValue :: NamedOptionDefinition -> String -> Object String -> Object String
-addStringOptionValue d v o =
-  Object.insert (getName d) v o
+instance showOptionObject :: Show OptionObject where
+  show (OptionObject o) = "(OptionObject " <> show o <> ")"
 
-defaultValues :: Array NamedOptionDefinition -> Object String
+type ParsedOption = { arguments :: Array String, options :: OptionObject }
+
+addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
+addBooleanOptionValue d (OptionObject o) =
+  OptionObject (Object.insert (getName d) "true" o)
+
+addStringOptionValue :: NamedOptionDefinition -> String -> OptionObject -> OptionObject
+addStringOptionValue d v (OptionObject o) =
+  OptionObject (Object.insert (getName d) v o)
+
+defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
-  foldl
-    (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
-    Object.empty
-    defs
+  OptionObject
+    (foldlDefault
+      (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
+      Object.empty
+      defs)
 
 findByOptionName :: OptionName -> Array NamedOptionDefinition -> Maybe NamedOptionDefinition
 findByOptionName (Long l) =
@@ -42,11 +53,15 @@ findByOptionName (Long l) =
 findByOptionName (Short s) =
   Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
 
-getBooleanValue :: String -> Object String -> Maybe Boolean
-getBooleanValue k o = Object.lookup k o >>= pure <<< eq "true"
+-- TODO: remove
+fromFoldable :: forall f. Foldable f => f (Tuple String String) -> OptionObject
+fromFoldable f = OptionObject (Object.fromFoldable f)
 
-getStringValue :: String -> Object String -> Maybe String
-getStringValue = Object.lookup
+getBooleanValue :: String -> OptionObject -> Maybe Boolean
+getBooleanValue k (OptionObject o) = Object.lookup k o >>= pure <<< eq "true"
+
+getStringValue :: String -> OptionObject -> Maybe String
+getStringValue k (OptionObject o) = Object.lookup k o
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do
@@ -126,3 +141,6 @@ parse' s =
               map
                 (\cp -> { name: Short cp, value })
                 (String.toCodePointArray name)
+
+union :: OptionObject -> OptionObject -> OptionObject
+union (OptionObject o1) (OptionObject o2) = OptionObject (Object.union o1 o2)

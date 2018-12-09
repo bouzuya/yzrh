@@ -6,10 +6,10 @@ module Bouzuya.CommandLineOption.ObjectToRecord
   , toRecord
   ) where
 
+import Bouzuya.CommandLineOption.OptionObject (OptionObject)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Maybe (Maybe)
 import Data.Symbol as Symbol
-import Foreign.Object (Object)
 import Prelude (compose, identity, map, pure, (<$>), (<*>))
 import Prim.Row as Row
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
@@ -18,7 +18,7 @@ import Record.Builder as Builder
 import Type.Data.RowList (RLProxy(..))
 
 class GetValue a where
-  getValue :: String -> Object String -> Maybe a
+  getValue :: String -> OptionObject -> Maybe a
 
 instance getValueBoolean :: GetValue Boolean where
   getValue = OptionObject.getBooleanValue
@@ -31,7 +31,10 @@ instance getValueMaybeString :: GetValue (Maybe String) where
 
 class OptionRecordBuilder (list :: RowList) (from :: # Type) (to :: # Type)
   | list -> from to where
-  builder :: RLProxy list -> Object String -> Maybe (Builder (Record from) (Record to))
+  builder ::
+    RLProxy list
+    -> OptionObject
+    -> Maybe (Builder (Record from) (Record to))
 
 instance optionRecordBuilderConsBoolean ::
   ( GetValue ty'
@@ -50,10 +53,11 @@ instance optionRecordBuilderConsBoolean ::
 instance optionRecordBuilderNil :: OptionRecordBuilder Nil () () where
   builder _ _ = pure identity
 
-toRecord :: forall rows list
+toRecord ::
+  forall rows list
    . RowToList rows list
   => OptionRecordBuilder list () rows
-  => Object String
+  => OptionObject
   -> Maybe (Record rows)
 toRecord obj = Builder.build <$> (builder list obj) <*> (pure {})
   where

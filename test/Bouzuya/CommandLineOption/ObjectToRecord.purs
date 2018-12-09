@@ -3,10 +3,10 @@ module Test.Bouzuya.CommandLineOption.ObjectToRecord
   ) where
 
 import Bouzuya.CommandLineOption.ObjectToRecord (class GetValue, toRecord)
+import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
-import Foreign.Object as Object
 import Prelude (class Eq, class Show, map, show, (>>=))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
@@ -16,7 +16,7 @@ newtype MyInt = MyInt Int
 derive instance eqMyInt :: Eq MyInt
 
 instance getValueString :: GetValue MyInt where
-  getValue k o = Object.lookup k o >>= fromString
+  getValue k o = OptionObject.getStringValue k o >>= fromString
 
 instance showMyInt :: Show MyInt where
   show (MyInt i) = show i
@@ -29,7 +29,7 @@ tests = suite "Bouzuya.CommandLineOption.ObjectToRecord" do
   test "String" do
     let
       obj =
-        Object.fromFoldable
+        OptionObject.fromFoldable
           [ Tuple "k1" "123"
           ]
     Assert.equal

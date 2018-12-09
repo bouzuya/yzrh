@@ -3,13 +3,12 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ) where
 
 import Bouzuya.CommandLineOption.OptionDefinition (booleanOption', stringOption')
-import Bouzuya.CommandLineOption.OptionObject (getBooleanValue, getStringValue, parse)
+import Bouzuya.CommandLineOption.OptionObject (OptionObject, getBooleanValue, getStringValue, parse)
+import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
-import Foreign.Object (Object)
-import Foreign.Object as Object
 import Prelude (discard, show)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
@@ -54,15 +53,17 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         , b "cBoolean" false
         , b "dBoolean" false
         ]
-    o :: Array (Tuple String (Maybe String)) -> Object String
+    o :: Array (Tuple String (Maybe String)) -> OptionObject
     o es =
-      Object.fromFoldable
+      OptionObject.fromFoldable
         (Array.mapMaybe
           (\(Tuple k m) ->
             case m of
               Nothing -> Nothing
               Just v -> Just (Tuple k v))
           es)
+    u :: OptionObject -> OptionObject -> OptionObject
+    u = OptionObject.union
     s :: String -> String -> Tuple String (Maybe String)
     s k v = Tuple k (Just v)
     b :: String -> Boolean -> Tuple String (Maybe String)
@@ -72,26 +73,26 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
       Assert.equal
         (Right
           { arguments: []
-          , options: Object.union (o [s "aString" "a1"]) defaults
+          , options: u (o [s "aString" "a1"]) defaults
           })
         (f defs [])
       Assert.equal
         (Right
           { arguments: []
-          , options: Object.union (o [s "aString" "a2"]) defaults
+          , options: u (o [s "aString" "a2"]) defaults
           })
         (f defs ["--a-string", "a2"])
     test "boolean option" do
       Assert.equal
         (Right
           { arguments: []
-          , options: Object.union (o [b "cBoolean" false]) defaults
+          , options: u (o [b "cBoolean" false]) defaults
           })
         (f defs [])
       Assert.equal
         (Right
           { arguments: []
-          , options: Object.union (o [b "cBoolean" true]) defaults
+          , options: u (o [b "cBoolean" true]) defaults
           })
         (f defs ["--c-boolean"])
     test "string option and boolean option" do
@@ -99,7 +100,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         (Right
           { arguments: []
           , options:
-              Object.union
+              u
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
@@ -117,7 +118,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
       Assert.equal
         (Right
           { arguments: []
-          , options: Object.union (o [s "aString" "a2"]) defaults
+          , options: u (o [s "aString" "a2"]) defaults
           })
         (f defs ["--a-string=a2"])
     test "boolean option (ERROR)" do
@@ -129,7 +130,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         (Right
           { arguments: []
           , options:
-              Object.union
+              u
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
@@ -147,7 +148,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         (Right
           { arguments: []
           , options:
-              Object.union
+              u
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
@@ -166,7 +167,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         (Right
           { arguments: []
           , options:
-              Object.union
+              u
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
@@ -184,7 +185,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         (Right
           { arguments: []
           , options:
-              Object.union
+              u
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
@@ -214,7 +215,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
       Assert.equal
         (Right
           { arguments: ["arg1", "arg2"]
-          , options: Object.union (o [ b "cBoolean" true]) defaults
+          , options: u (o [ b "cBoolean" true]) defaults
           })
         (f defs ["-c", "arg1", "arg2"])
     test "arguments short option (ERROR)" do
