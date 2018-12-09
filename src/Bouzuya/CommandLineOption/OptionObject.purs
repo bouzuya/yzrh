@@ -1,14 +1,11 @@
 module Bouzuya.CommandLineOption.OptionObject
-  ( OptionObject
-  , ParsedOption
+  ( ParsedOption
   , getBooleanValue
   , getStringValue
   , parse
   ) where
 
 import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
-import Bouzuya.CommandLineOption.OptionValue (OptionValue)
-import Bouzuya.CommandLineOption.OptionValue as OptionValue
 import Data.Array (foldl)
 import Data.Array as Array
 import Data.Either (Either(..), note)
@@ -18,23 +15,21 @@ import Data.String (CodePoint)
 import Data.String as String
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (bind, const, map, not, unit, (==), (>>=))
+import Prelude (bind, const, eq, map, not, pure, unit, (<<<), (==), (>>=))
 
 data OptionName = Long String | Short CodePoint
 
-type OptionObject = Object OptionValue
+type ParsedOption = { arguments :: Array String, options :: Object String }
 
-type ParsedOption = { arguments :: Array String, options :: OptionObject }
-
-addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
+addBooleanOptionValue :: NamedOptionDefinition -> Object String -> Object String
 addBooleanOptionValue d o =
-  Object.insert (getName d) (OptionValue.fromBoolean true) o
+  Object.insert (getName d) "true" o
 
-addStringOptionValue :: NamedOptionDefinition -> String -> OptionObject -> OptionObject
+addStringOptionValue :: NamedOptionDefinition -> String -> Object String -> Object String
 addStringOptionValue d v o =
-  Object.insert (getName d) (OptionValue.fromString v) o
+  Object.insert (getName d) v o
 
-defaultValues :: Array NamedOptionDefinition -> OptionObject
+defaultValues :: Array NamedOptionDefinition -> Object String
 defaultValues defs =
   foldl
     (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
@@ -47,11 +42,11 @@ findByOptionName (Long l) =
 findByOptionName (Short s) =
   Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
 
-getBooleanValue :: String -> Object OptionValue -> Maybe Boolean
-getBooleanValue k o = Object.lookup k o >>= OptionValue.getBooleanValue
+getBooleanValue :: String -> Object String -> Maybe Boolean
+getBooleanValue k o = Object.lookup k o >>= pure <<< eq "true"
 
-getStringValue :: String -> Object OptionValue -> Maybe String
-getStringValue k o = Object.lookup k o >>= OptionValue.getStringValue
+getStringValue :: String -> Object String -> Maybe String
+getStringValue = Object.lookup
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do

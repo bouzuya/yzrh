@@ -4,12 +4,13 @@ module Test.Bouzuya.CommandLineOption.OptionObject
 
 import Bouzuya.CommandLineOption.OptionDefinition (booleanOption', stringOption')
 import Bouzuya.CommandLineOption.OptionObject (getBooleanValue, getStringValue, parse)
-import Bouzuya.CommandLineOption.OptionValue as OptionValue
+import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
+import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (discard)
+import Prelude (discard, show)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
@@ -53,9 +54,19 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         , b "cBoolean" false
         , b "dBoolean" false
         ]
-    o es = Object.fromFoldable es
-    s k v = Tuple k (OptionValue.fromString v)
-    b k v = Tuple k (OptionValue.fromBoolean v)
+    o :: Array (Tuple String (Maybe String)) -> Object String
+    o es =
+      Object.fromFoldable
+        (Array.mapMaybe
+          (\(Tuple k m) ->
+            case m of
+              Nothing -> Nothing
+              Just v -> Just (Tuple k v))
+          es)
+    s :: String -> String -> Tuple String (Maybe String)
+    s k v = Tuple k (Just v)
+    b :: String -> Boolean -> Tuple String (Maybe String)
+    b k v = Tuple k (Just (show v))
   suite "long (--foo bar)" do
     test "string option" do
       Assert.equal

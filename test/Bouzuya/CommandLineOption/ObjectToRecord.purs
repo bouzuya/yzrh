@@ -2,32 +2,36 @@ module Test.Bouzuya.CommandLineOption.ObjectToRecord
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.ObjectToRecord (toRecord)
-import Bouzuya.CommandLineOption.OptionValue as OptionValue
+import Bouzuya.CommandLineOption.ObjectToRecord (class GetValue, toRecord)
+import Data.Int as Int
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Foreign.Object as Object
-import Prelude (discard)
+import Prelude (class Eq, class Show, map, show, (>>=))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
+newtype MyInt = MyInt Int
+
+derive instance eqMyInt :: Eq MyInt
+
+instance getValueString :: GetValue MyInt where
+  getValue k o = Object.lookup k o >>= fromString
+
+instance showMyInt :: Show MyInt where
+  show (MyInt i) = show i
+
+fromString :: String -> Maybe MyInt
+fromString s = map MyInt (Int.fromString s)
+
 tests :: TestSuite
 tests = suite "Bouzuya.CommandLineOption.ObjectToRecord" do
-  test "Boolean/String" do
+  test "String" do
     let
       obj =
         Object.fromFoldable
-          [ Tuple "k1" (OptionValue.fromString "v1")
-          , Tuple "k2" (OptionValue.fromBoolean true)
+          [ Tuple "k1" "123"
           ]
     Assert.equal
-      (Just
-        { k1: "v1"
-        , k2: true
-        })
+      (Just { k1: MyInt 123 })
       (toRecord obj)
-  test "Maybe String" do
-    let o1 = Object.fromFoldable []
-    Assert.equal (Just { k: Nothing :: Maybe String }) (toRecord o1)
-    let o2 = Object.fromFoldable [ Tuple "k" (OptionValue.fromString "v") ]
-    Assert.equal (Just { k: Just "v" }) (toRecord o2)

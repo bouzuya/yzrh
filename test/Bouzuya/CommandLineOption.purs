@@ -10,7 +10,6 @@ import Prelude (discard)
 import Test.Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
 import Test.Bouzuya.CommandLineOption.OptionDefinition as OptionDefinition
 import Test.Bouzuya.CommandLineOption.OptionObject as OptionObject
-import Test.Bouzuya.CommandLineOption.OptionValue as OptionValue
 import Test.Bouzuya.CommandLineOption.RecordToArray as RecordToArray
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
@@ -30,5 +29,4 @@ tests = suite "Bouzuya.CommandLineOption" do
   ObjectToRecord.tests
   OptionDefinition.tests
   OptionObject.tests
-  OptionValue.tests
   RecordToArray.tests

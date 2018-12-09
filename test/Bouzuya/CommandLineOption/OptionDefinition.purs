@@ -3,7 +3,6 @@ module Test.Bouzuya.CommandLineOption.OptionDefinition
   ) where
 
 import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, OptionDefinition, TypedOptionDefinition, booleanOption, booleanOptionFromTyped, getDefaultValue, getLongName, getName, getShortName, isValueRequired, maybeStringOption, maybeStringOptionFromTyped, stringOption, stringOptionFromTyped, withName)
-import Bouzuya.CommandLineOption.OptionValue as OptionValue
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
 import Test.Unit (TestSuite, suite, test)
@@ -35,8 +34,8 @@ tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
     m'' = withName "may" m'
     defs' = [ s', b', m' ]
   test "getDefaultValue" do
-    Assert.equal (Just (OptionValue.fromString "default")) (getDefaultValue s'')
-    Assert.equal (Just (OptionValue.fromBoolean false)) (getDefaultValue b'')
+    Assert.equal (Just "default") (getDefaultValue s'')
+    Assert.equal (Just "false") (getDefaultValue b'')
     Assert.equal Nothing (getDefaultValue m'')
   test "getLongName" do
     Assert.equal "st" (getLongName s'')
