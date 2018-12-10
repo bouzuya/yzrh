@@ -19,7 +19,7 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (class Eq, class Functor, class Show, Unit, bind, const, discard, map, not, pure, show, unit, (&&), (<>), (==), (>>=), (||))
+import Prelude (class Eq, class Functor, class Show, Unit, bind, const, discard, map, not, pure, show, unit, (<>), (==), (>>=), (||))
 
 data OptionName = Long String | Short CodePoint
 
