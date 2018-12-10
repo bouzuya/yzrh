@@ -254,6 +254,10 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
       Assert.equal
         (Left "no metavar (next)") -- TODO: improve message
         (f defs ["-a", "-c"])
+    test "--a-string a --a-string b (ERROR)" do
+      Assert.equal
+        (Left "many times") -- TODO: improve message
+        (f defs ["--a-string", "a", "--a-string", "b"])
   test "getFirstValue" do
     Assert.equal Nothing (getFirstValue "unknown" defaults)
     Assert.equal (Just "a1") (getFirstValue "aString" defaults)

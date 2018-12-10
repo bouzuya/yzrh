@@ -11,6 +11,7 @@ module Bouzuya.CommandLineOption.OptionDefinition
   , getLongName
   , getName
   , getShortName
+  , isValueMultiple
   , isValueRequired
   , maybeStringOption
   , maybeStringOptionFromTyped
@@ -144,6 +145,9 @@ getShortName (NamedOptionDefinition _ (BooleanOption (OptionInfo _ short _) _))
   = join (map charFromCodePoint short)
 getShortName (NamedOptionDefinition _ (StringOption (OptionInfo _ short _) _))
   = join (map charFromCodePoint short)
+
+isValueMultiple :: NamedOptionDefinition -> Boolean
+isValueMultiple _ = false
 
 isValueRequired :: NamedOptionDefinition -> Boolean
 isValueRequired (NamedOptionDefinition _ (BooleanOption _ _)) = false

@@ -9,7 +9,7 @@ module Bouzuya.CommandLineOption.OptionObject
   , parse
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueRequired)
+import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueMultiple, isValueRequired)
 import Data.Array as Array
 import Data.Either (Either(..), note)
 import Data.Foldable (class Foldable, foldl, foldM, foldlDefault)
@@ -19,7 +19,7 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (class Eq, class Functor, class Show, bind, const, map, not, show, unit, (<>), (==), (>>=))
+import Prelude (class Eq, class Functor, class Show, Unit, bind, const, discard, map, not, pure, show, unit, (&&), (<>), (==), (>>=), (||))
 
 data OptionName = Long String | Short CodePoint
 
@@ -37,11 +37,21 @@ instance showOptionObject :: Show OptionObject where
 
 type ParsedOption = { arguments :: Array String, options :: OptionObject }
 
-addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
+addBooleanOptionValue ::
+  NamedOptionDefinition
+  -> OptionObject
+  -> Either String OptionObject
 addBooleanOptionValue d o = insertOrUpdate d [] o
 
-addStringOptionValue :: NamedOptionDefinition -> String -> OptionObject -> OptionObject
+addStringOptionValue ::
+  NamedOptionDefinition
+  -> String
+  -> OptionObject
+  -> Either String OptionObject
 addStringOptionValue d v o = insertOrUpdate d [v] o
+
+assert' :: String -> Boolean -> Either String Unit
+assert' s b = if b then Right unit else Left s
 
 defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
@@ -79,9 +89,15 @@ hasKey :: String -> OptionObject -> Boolean
 hasKey k (OptionObject o) = Object.member k o
 
 -- insert or update (append)
-insertOrUpdate :: NamedOptionDefinition -> Array String -> OptionObject -> OptionObject
-insertOrUpdate d v (OptionObject o) =
-  OptionObject (Object.alter (\m -> Just ((fromMaybe [] m) <> v)) (getName d) o)
+insertOrUpdate ::
+  NamedOptionDefinition
+  -> Array String
+  -> OptionObject
+  -> Either String OptionObject
+insertOrUpdate d v (OptionObject o) = do
+  let k = getName d
+  assert' "many times" (isValueMultiple d || not (Object.member k o))
+  pure (OptionObject (Object.alter (\m -> Just ((fromMaybe [] m) <> v)) k o))
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do
@@ -93,7 +109,6 @@ parse defs ss = do
   _ <- assert' "no metavar (end)" (isNothing processing)
   Right { arguments, options: merge options (defaultValues defs) }
   where
-    assert' s b = if b then Right unit else Left s
     f a@{ arguments, options, processing: Nothing } s =
       case parse' s of
         [] -> -- foo
@@ -104,15 +119,17 @@ parse defs ss = do
           def <- note "unknown option" (findByOptionName name defs)
           case valueMaybe of
             Just value ->
-              if isValueRequired def then
-                Right a { options = addStringOptionValue def value options }
+              if isValueRequired def then do
+                o <- addStringOptionValue def value options
+                Right a { options = o }
               else
                 Left "boolean option can't specify value" -- TODO: add option name
             Nothing ->
               if isValueRequired def then
                 Right a { processing = Just def }
-              else
-                Right a { options = addBooleanOptionValue def options }
+              else do
+                o <- addBooleanOptionValue def options
+                Right a { options = o }
         shortOptions -> do -- -abc
           _ <- assert' "invalid option position" (Array.null arguments)
           foldM
@@ -120,15 +137,17 @@ parse defs ss = do
               def <- note "unknown boolean option" (findByOptionName name defs) -- TODO: add option name
               _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
               _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
-              Right a' { options = addBooleanOptionValue def options' })
+              o <- addBooleanOptionValue def options'
+              Right a' { options = o })
             a
             shortOptions
     f a@{ options, processing: Just def } s =
       case parse' s of
-        [] ->
+        [] -> do
+          o <- addStringOptionValue def s options
           Right
             a
-              { options = addStringOptionValue def s options
+              { options = o
               , processing = Nothing
               }
         _ ->
