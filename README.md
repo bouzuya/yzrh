@@ -6,7 +6,7 @@ template
 
 ```
 $ npm --silent run build
-$ npm --silent start -- .psc-tmp/routes.rb | jq --sort-keys . > openapi.json
+$ npm --silent start -- --in-file config/routes.rb --in-format routes.rb | jq --sort-keys .
 ```
 
 ## Note
