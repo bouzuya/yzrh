@@ -2,6 +2,7 @@ module Main
   ( main
   ) where
 
+import CommandLineOption as CommandLineOption
 import Data.Array as Array
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmptyArray
@@ -22,7 +23,7 @@ import OpenAPI as OpenAPI
 import OpenAPIHelper as OpenAPIHelper
 import PathTemplate (PathTemplate)
 import PathTemplate as PathTemplate
-import Prelude (class Ord, Unit, bind, map, pure, show, (<>))
+import Prelude (class Ord, Unit, bind, discard, map, pure, show, unit, (/=), (<>))
 import Simple.JSON (writeJSON)
 import YAS (YAS)
 import YAS as YAS
@@ -67,10 +68,23 @@ yasToPaths yas =
 main :: Effect Unit
 main = do
   argv <- Process.argv
-  file <- maybe (throw "no arg") pure (argv Array.!! 1)
-  config <- read file
+  optionsMaybe <- pure (CommandLineOption.parse (Array.drop 2 argv))
+  options <- maybe (throw "no options") pure optionsMaybe
+  if options.version
+    then do
+      log "0.0.0" -- TODO
+      Process.exit 0
+    else pure unit
+  inFile <- maybe (throw "no inFile") pure options.inFile
+  if options.inFormat /= "routes.rb"
+    then throw "not implemented" -- TODO
+    else pure unit
+  if options.outFormat /= "json"
+    then throw "not implemented" -- TODO
+    else pure unit
+  config <- read inFile
   let
     paths = yasToPaths config
-    info = OpenAPIHelper.buildInfo file "0.0.0"
+    info = OpenAPIHelper.buildInfo inFile "0.0.0"
     openApi = OpenAPIHelper.buildOpenApi info paths
   log (writeJSON openApi)

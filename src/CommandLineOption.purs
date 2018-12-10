@@ -6,7 +6,7 @@ import Bouzuya.CommandLineOption as CommandLineOption
 import Bouzuya.CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
-import Prelude (bind, map, pure)
+import Prelude (map)
 
 type CommandLineOptions =
   { inFile :: Maybe String
@@ -32,7 +32,4 @@ defs =
   }
 
 parse :: Array String -> Maybe CommandLineOptions
-parse ss = do
-  options <- map _.options (hush (CommandLineOption.parse defs ss))
-  _ <- options.inFile -- required
-  pure options
+parse ss = map _.options (hush (CommandLineOption.parse defs ss))
