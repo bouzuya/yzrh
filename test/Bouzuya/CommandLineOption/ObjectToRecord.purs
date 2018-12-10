@@ -30,7 +30,7 @@ tests = suite "Bouzuya.CommandLineOption.ObjectToRecord" do
     let
       obj =
         OptionObject.fromFoldable
-          [ Tuple "k1" "123"
+          [ Tuple "k1" ["123"]
           ]
     Assert.equal
       (Just { k1: MyInt 123 })

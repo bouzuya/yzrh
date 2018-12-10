@@ -34,8 +34,8 @@ tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
     m'' = withName "may" m'
     defs' = [ s', b', m' ]
   test "getDefaultValue" do
-    Assert.equal (Just "default") (getDefaultValue s'')
-    Assert.equal (Just "false") (getDefaultValue b'')
+    Assert.equal (Just ["default"]) (getDefaultValue s'')
+    Assert.equal Nothing (getDefaultValue b'')
     Assert.equal Nothing (getDefaultValue m'')
   test "getLongName" do
     Assert.equal "st" (getLongName s'')

@@ -10,7 +10,7 @@ import Bouzuya.CommandLineOption.OptionObject (OptionObject)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Maybe (Maybe)
 import Data.Symbol as Symbol
-import Prelude (bind, compose, identity, map, pure, (<$>), (<*>), (==))
+import Prelude (compose, identity, map, pure, (<$>), (<*>))
 import Prim.Row as Row
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Record.Builder (Builder)
@@ -21,7 +21,7 @@ class GetValue a where
   getValue :: String -> OptionObject -> Maybe a
 
 instance getValueBoolean :: GetValue Boolean where
-  getValue = OptionObject.member
+  getValue k o = pure (OptionObject.member k o)
 
 instance getValueString :: GetValue String where
   getValue = OptionObject.getStringValue

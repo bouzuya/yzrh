@@ -9,7 +9,7 @@ import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
-import Prelude (discard, show)
+import Prelude (discard, map)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
@@ -53,21 +53,16 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
         , b "cBoolean" false
         , b "dBoolean" false
         ]
-    o :: Array (Tuple String (Maybe String)) -> OptionObject
+    o :: Array (Tuple String (Maybe (Array String))) -> OptionObject
     o es =
       OptionObject.fromFoldable
-        (Array.mapMaybe
-          (\(Tuple k m) ->
-            case m of
-              Nothing -> Nothing
-              Just v -> Just (Tuple k v))
-          es)
+        (Array.mapMaybe (\(Tuple k m) -> map (Tuple k) m) es)
     u :: OptionObject -> OptionObject -> OptionObject
     u = OptionObject.merge
-    s :: String -> String -> Tuple String (Maybe String)
-    s k v = Tuple k (Just v)
-    b :: String -> Boolean -> Tuple String (Maybe String)
-    b k v = Tuple k (Just (show v))
+    s :: String -> String -> Tuple String (Maybe (Array String))
+    s k v = Tuple k (Just [v])
+    b :: String -> Boolean -> Tuple String (Maybe (Array String))
+    b k v = Tuple k (if v then Just [] else Nothing)
   suite "long (--foo bar)" do
     test "string option" do
       Assert.equal

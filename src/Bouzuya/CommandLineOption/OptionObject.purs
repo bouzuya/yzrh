@@ -22,6 +22,11 @@ import Prelude (class Eq, class Functor, class Show, bind, const, map, not, pure
 
 data OptionName = Long String | Short CodePoint
 
+-- case lookup k o of
+--   Nothing -> ...  -- Boolean: false / String: ERROR / Maybe String: Nothing
+--   Just [] -> ...  -- Boolean: true  / String: ERROR / Maybe String: ERROR
+--   Just [v] -> ... -- Boolean: ERROR / String: v     / Maybe String: Just v
+--   Just _ -> ...   -- (TODO) Boolean: ERROR / String: ERROR / Maybe String: ERROR
 newtype OptionObject = OptionObject (Object (Array String))
 
 derive instance eqOptionObject :: Eq OptionObject
@@ -35,7 +40,7 @@ addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
 addBooleanOptionValue d (OptionObject o) =
   OptionObject
     (Object.alter
-      (\m -> Just ((fromMaybe [] m) <> ["true"])) -- TODO
+      (\m -> Just ((fromMaybe [] m) <> []))
       (getName d)
       o)
 
@@ -51,7 +56,7 @@ defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
   OptionObject
     (foldlDefault
-      (\o d -> Object.alter (const (map Array.singleton (getDefaultValue d))) (getName d) o)
+      (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
       Object.empty
       defs)
 
@@ -66,12 +71,12 @@ fromFoldable ::
   forall f
    . Foldable f
   => Functor f
-  => f (Tuple String String)
+  => f (Tuple String (Array String))
   -> OptionObject
 fromFoldable f =
   OptionObject (Object.fromFoldable (map g f))
   where
-    g (Tuple k v) = Tuple k (Array.singleton v)
+    g (Tuple k v) = Tuple k v
 
 getStringValue :: String -> OptionObject -> Maybe String
 getStringValue k (OptionObject o) = do

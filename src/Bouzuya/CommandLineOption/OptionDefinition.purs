@@ -21,6 +21,7 @@ module Bouzuya.CommandLineOption.OptionDefinition
   ) where
 
 import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
+import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String as String
@@ -125,11 +126,11 @@ booleanOption' info =
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
 
-getDefaultValue :: NamedOptionDefinition -> Maybe String
+getDefaultValue :: NamedOptionDefinition -> Maybe (Array String)
 getDefaultValue (NamedOptionDefinition _ (BooleanOption _ _))
-  = Just "false" -- FIXME: ?
+  = Nothing
 getDefaultValue (NamedOptionDefinition _ (StringOption _ { value }))
-  = value
+  = map Array.singleton value
 
 getLongName :: NamedOptionDefinition -> String
 getLongName (NamedOptionDefinition _ (BooleanOption (OptionInfo long _ _) _)) = long
