@@ -3,6 +3,7 @@ module Bouzuya.CommandLineOption.OptionObject
   , ParsedOption
   , fromFoldable -- TODO: remove
   , getStringValue
+  , member
   , merge -- TODO: remove
   , parse
   ) where
@@ -77,6 +78,9 @@ getStringValue k (OptionObject o) = do
   a <- Object.lookup k o
   v <- Array.head a
   pure v
+
+member :: String -> OptionObject -> Boolean
+member k (OptionObject o) = Object.member k o
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do

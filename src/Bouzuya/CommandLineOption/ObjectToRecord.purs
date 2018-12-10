@@ -21,9 +21,7 @@ class GetValue a where
   getValue :: String -> OptionObject -> Maybe a
 
 instance getValueBoolean :: GetValue Boolean where
-  getValue k o = do
-    v <- OptionObject.getStringValue k o
-    pure (v == "true") -- TODO
+  getValue = OptionObject.member
 
 instance getValueString :: GetValue String where
   getValue = OptionObject.getStringValue
