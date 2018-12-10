@@ -2,7 +2,6 @@ module Bouzuya.CommandLineOption.OptionObject
   ( OptionObject
   , ParsedOption
   , fromFoldable -- TODO: remove
-  , getBooleanValue
   , getStringValue
   , merge -- TODO: remove
   , parse
@@ -72,12 +71,6 @@ fromFoldable f =
   OptionObject (Object.fromFoldable (map g f))
   where
     g (Tuple k v) = Tuple k (Array.singleton v)
-
-getBooleanValue :: String -> OptionObject -> Maybe Boolean
-getBooleanValue k (OptionObject o) = do
-  a <- Object.lookup k o
-  v <- Array.head a
-  pure (v == "true") -- TODO
 
 getStringValue :: String -> OptionObject -> Maybe String
 getStringValue k (OptionObject o) = do
