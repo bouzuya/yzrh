@@ -3,7 +3,7 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ) where
 
 import Bouzuya.CommandLineOption.OptionDefinition (booleanOption', stringOption')
-import Bouzuya.CommandLineOption.OptionObject (OptionObject, getStringValue, parse)
+import Bouzuya.CommandLineOption.OptionObject (OptionObject, getFirstValue, getValues, hasKey, parse)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Array as Array
 import Data.Either (Either(..))
@@ -254,6 +254,12 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
       Assert.equal
         (Left "no metavar (next)") -- TODO: improve message
         (f defs ["-a", "-c"])
-  test "getStringValue" do
-    Assert.equal Nothing (getStringValue "unknown" defaults)
-    Assert.equal (Just "a1") (getStringValue "aString" defaults)
+  test "getFirstValue" do
+    Assert.equal Nothing (getFirstValue "unknown" defaults)
+    Assert.equal (Just "a1") (getFirstValue "aString" defaults)
+  test "getValues" do
+    Assert.equal Nothing (getValues "unknown" defaults)
+    Assert.equal (Just ["a1"]) (getValues "aString" defaults)
+  test "hasKey" do
+    Assert.equal false (hasKey "unknown" defaults)
+    Assert.equal true (hasKey "aString" defaults)

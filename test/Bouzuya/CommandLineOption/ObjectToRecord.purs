@@ -16,7 +16,7 @@ newtype MyInt = MyInt Int
 derive instance eqMyInt :: Eq MyInt
 
 instance getValueString :: GetValue MyInt where
-  getValue k o = OptionObject.getStringValue k o >>= fromString
+  getValue k o = OptionObject.getFirstValue k o >>= fromString
 
 instance showMyInt :: Show MyInt where
   show (MyInt i) = show i

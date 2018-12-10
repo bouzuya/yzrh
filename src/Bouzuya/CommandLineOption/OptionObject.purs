@@ -2,8 +2,9 @@ module Bouzuya.CommandLineOption.OptionObject
   ( OptionObject
   , ParsedOption
   , fromFoldable -- TODO: remove
-  , getStringValue
-  , member
+  , getFirstValue
+  , getValues
+  , hasKey
   , merge -- TODO: remove
   , parse
   ) where
@@ -18,7 +19,7 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Prelude (class Eq, class Functor, class Show, bind, const, map, not, pure, show, unit, (<>), (==))
+import Prelude (class Eq, class Functor, class Show, bind, const, map, not, show, unit, (<>), (==), (>>=))
 
 data OptionName = Long String | Short CodePoint
 
@@ -37,20 +38,10 @@ instance showOptionObject :: Show OptionObject where
 type ParsedOption = { arguments :: Array String, options :: OptionObject }
 
 addBooleanOptionValue :: NamedOptionDefinition -> OptionObject -> OptionObject
-addBooleanOptionValue d (OptionObject o) =
-  OptionObject
-    (Object.alter
-      (\m -> Just ((fromMaybe [] m) <> []))
-      (getName d)
-      o)
+addBooleanOptionValue d o = insertOrUpdate d [] o
 
 addStringOptionValue :: NamedOptionDefinition -> String -> OptionObject -> OptionObject
-addStringOptionValue d v (OptionObject o) =
-  OptionObject
-    (Object.alter
-      (\m -> Just ((fromMaybe [] m) <> [v]))
-      (getName d)
-      o)
+addStringOptionValue d v o = insertOrUpdate d [v] o
 
 defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
@@ -78,14 +69,19 @@ fromFoldable f =
   where
     g (Tuple k v) = Tuple k v
 
-getStringValue :: String -> OptionObject -> Maybe String
-getStringValue k (OptionObject o) = do
-  a <- Object.lookup k o
-  v <- Array.head a
-  pure v
+getFirstValue :: String -> OptionObject -> Maybe String
+getFirstValue k (OptionObject o) = Object.lookup k o >>= Array.head
 
-member :: String -> OptionObject -> Boolean
-member k (OptionObject o) = Object.member k o
+getValues :: String -> OptionObject -> Maybe (Array String)
+getValues k (OptionObject o) = Object.lookup k o
+
+hasKey :: String -> OptionObject -> Boolean
+hasKey k (OptionObject o) = Object.member k o
+
+-- insert or update (append)
+insertOrUpdate :: NamedOptionDefinition -> Array String -> OptionObject -> OptionObject
+insertOrUpdate d v (OptionObject o) =
+  OptionObject (Object.alter (\m -> Just ((fromMaybe [] m) <> v)) (getName d) o)
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
 parse defs ss = do

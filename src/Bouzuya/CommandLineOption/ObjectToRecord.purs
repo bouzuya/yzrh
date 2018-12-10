@@ -21,13 +21,13 @@ class GetValue a where
   getValue :: String -> OptionObject -> Maybe a
 
 instance getValueBoolean :: GetValue Boolean where
-  getValue k o = pure (OptionObject.member k o)
+  getValue k o = pure (OptionObject.hasKey k o)
 
 instance getValueString :: GetValue String where
-  getValue = OptionObject.getStringValue
+  getValue = OptionObject.getFirstValue
 
 instance getValueMaybeString :: GetValue (Maybe String) where
-  getValue k o = pure (OptionObject.getStringValue k o)
+  getValue k o = pure (OptionObject.getFirstValue k o)
 
 class OptionRecordBuilder (list :: RowList) (from :: # Type) (to :: # Type)
   | list -> from to where
