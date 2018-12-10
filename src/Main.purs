@@ -23,14 +23,18 @@ import OpenAPI as OpenAPI
 import OpenAPIHelper as OpenAPIHelper
 import PathTemplate (PathTemplate)
 import PathTemplate as PathTemplate
-import Prelude (class Ord, Unit, bind, discard, map, pure, show, unit, (/=), (<>))
+import Prelude (class Ord, Unit, bind, discard, map, pure, show, unit, (<>), (==))
 import Simple.JSON (writeJSON)
+import Unsafe.Coerce (unsafeCoerce)
 import YAS (YAS)
 import YAS as YAS
 import YAS.RailsRoutes as YASRailsRoutes
 
-read :: FilePath -> Effect YAS
-read p = map YASRailsRoutes.fromString (FS.readTextFile Encoding.UTF8 p)
+readRoutesRb :: FilePath -> Effect YAS
+readRoutesRb p = map YASRailsRoutes.fromString (FS.readTextFile Encoding.UTF8 p)
+
+readYasJson :: FilePath -> Effect YAS
+readYasJson p = unsafeCoerce unit -- FIXME
 
 pathMap :: forall k v. Ord k => (v -> k) -> Array v -> Map k (NonEmptyArray v)
 pathMap key xs =
@@ -76,15 +80,19 @@ main = do
       Process.exit 0
     else pure unit
   inFile <- maybe (throw "no inFile") pure options.inFile
-  if options.inFormat /= "routes.rb"
+  yas <-
+    if options.inFormat == "json"
+    then readYasJson inFile
+    else if options.inFormat == "routes.rb"
+    then readRoutesRb inFile
+    else throw "unknown format"
+  if options.outFormat == "json"
+    then do
+      let
+        paths = yasToPaths yas
+        info = OpenAPIHelper.buildInfo inFile "0.0.0"
+        openApi = OpenAPIHelper.buildOpenApi info paths
+      log (writeJSON openApi)
+    else if options.outFormat == "routes.rb"
     then throw "not implemented" -- TODO
-    else pure unit
-  if options.outFormat /= "json"
-    then throw "not implemented" -- TODO
-    else pure unit
-  config <- read inFile
-  let
-    paths = yasToPaths config
-    info = OpenAPIHelper.buildInfo inFile "0.0.0"
-    openApi = OpenAPIHelper.buildOpenApi info paths
-  log (writeJSON openApi)
+    else throw "unknown format"
