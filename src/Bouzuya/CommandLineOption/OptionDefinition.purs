@@ -130,27 +130,41 @@ charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
 
 getDefaultValue :: NamedOptionDefinition -> Maybe (Array String)
-getDefaultValue (NamedOptionDefinition _ (OptionDefinition _ BooleanOption _))
-  = Nothing
-getDefaultValue (NamedOptionDefinition _ (OptionDefinition _ (StringOption _) value))
+getDefaultValue (NamedOptionDefinition _ o) = getDefaultValue' o
+
+getDefaultValue' :: OptionDefinition -> Maybe (Array String)
+getDefaultValue' (OptionDefinition _ BooleanOption _) = Nothing
+getDefaultValue' (OptionDefinition _ (StringOption _) value)
   = map Array.singleton value
 
 getLongName :: NamedOptionDefinition -> String
-getLongName (NamedOptionDefinition _ (OptionDefinition (OptionInfo long _ _ _) _ _)) = long
+getLongName (NamedOptionDefinition _ o) = getLongName' o
+
+getLongName' :: OptionDefinition -> String
+getLongName' (OptionDefinition (OptionInfo long _ _ _) _ _) = long
 
 getName :: NamedOptionDefinition -> String
 getName (NamedOptionDefinition name _) = name
 
 getShortName :: NamedOptionDefinition -> Maybe Char
-getShortName (NamedOptionDefinition _ (OptionDefinition (OptionInfo _ short _ _) _ _))
+getShortName (NamedOptionDefinition _ o) = getShortName' o
+
+getShortName' :: OptionDefinition -> Maybe Char
+getShortName' (OptionDefinition (OptionInfo _ short _ _) _ _)
   = join (map charFromCodePoint short)
 
 isValueMultiple :: NamedOptionDefinition -> Boolean
-isValueMultiple (NamedOptionDefinition _ (OptionDefinition (OptionInfo _ _ _ b) _ _)) = b
+isValueMultiple (NamedOptionDefinition _ o) = isValueMultiple' o
+
+isValueMultiple' :: OptionDefinition -> Boolean
+isValueMultiple' (OptionDefinition (OptionInfo _ _ _ b) _ _) = b
 
 isValueRequired :: NamedOptionDefinition -> Boolean
-isValueRequired (NamedOptionDefinition _ (OptionDefinition _ BooleanOption _)) = false
-isValueRequired (NamedOptionDefinition _ (OptionDefinition _ (StringOption _) _)) = true
+isValueRequired (NamedOptionDefinition _ o) = isValueRequired' o
+
+isValueRequired' :: OptionDefinition -> Boolean
+isValueRequired' (OptionDefinition _ BooleanOption _) = false
+isValueRequired' (OptionDefinition _ (StringOption _) _) = true
 
 maybeStringOption :: LongName -> Maybe Char -> MetaVar -> Help -> Maybe String -> TypedOptionDefinition (Maybe String)
 maybeStringOption l s m h v =
