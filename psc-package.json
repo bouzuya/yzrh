@@ -1,6 +1,6 @@
 {
   "name": "yzrh",
-  "set": "bouzuya-20181026",
+  "set": "bouzuya-20181209",
   "source": "https://github.com/bouzuya/package-sets.git",
   "depends": [
     "bouzuya-http-method",
