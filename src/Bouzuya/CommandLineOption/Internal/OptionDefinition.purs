@@ -98,24 +98,14 @@ data TypedOptionDefinition a
   = TypedOptionDefinition OptionDefinition
 
 booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
-booleanOption l s h =
-  TypedOptionDefinition
-    (OptionDefinition l (map String.codePointFromChar s) h false [] Nothing)
+booleanOption l s h = TypedOptionDefinition (option l s h [] Nothing)
 
 booleanOptionFromTyped :: TypedOptionDefinition Boolean -> OptionDefinition
 booleanOptionFromTyped (TypedOptionDefinition d) = d
 
 booleanOption' :: BooleanOptionInfo -> NamedOptionDefinition
 booleanOption' info =
-  withName
-    info.name
-    (OptionDefinition
-      info.long
-      (map String.codePointFromChar info.short)
-      info.help
-      false
-      []
-      Nothing)
+  withName info.name (option info.long info.short info.help [] Nothing)
 
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
@@ -158,16 +148,23 @@ isValueRequired' (OptionDefinition _ _ _ _ _ _) = true
 
 maybeStringOption :: LongName -> Maybe Char -> MetaVar -> Help -> Maybe String -> TypedOptionDefinition (Maybe String)
 maybeStringOption l s m h v =
-  TypedOptionDefinition
-    (OptionDefinition l (map String.codePointFromChar s) h false [m] (map Array.singleton v))
+  TypedOptionDefinition (option l s h [m] (map Array.singleton v))
 
 maybeStringOptionFromTyped :: TypedOptionDefinition (Maybe String) -> OptionDefinition
 maybeStringOptionFromTyped (TypedOptionDefinition d) = d
 
+option ::
+  LongName
+  -> Maybe Char
+  -> Help
+  -> Array MetaVar
+  -> Maybe (Array String)
+  -> OptionDefinition
+option l s h m v =
+  OptionDefinition l (map String.codePointFromChar s) h false m v
+
 stringOption :: LongName -> Maybe Char -> MetaVar -> Help -> String -> TypedOptionDefinition String
-stringOption l s m h v =
-  TypedOptionDefinition
-    (OptionDefinition l (map String.codePointFromChar s) h false [m] (Just [v]))
+stringOption l s m h v = TypedOptionDefinition (option l s h [m] (Just [v]))
 
 stringOptionFromTyped :: TypedOptionDefinition String -> OptionDefinition
 stringOptionFromTyped (TypedOptionDefinition d) = d
@@ -176,11 +173,10 @@ stringOption' :: StringOptionInfo -> NamedOptionDefinition
 stringOption' info =
   withName
     info.name
-    (OptionDefinition
+    (option
       info.long
-      (map String.codePointFromChar info.short)
+      info.short
       info.help
-      false
       [info.metavar]
       (map Array.singleton info.value))
 
