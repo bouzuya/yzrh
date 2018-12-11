@@ -1,14 +1,14 @@
 module Bouzuya.CommandLineOption
   ( class DefsToVals
-  , module TypedOptionDefinition
+  , module OptionDefinition
   , parse
   ) where
 
 import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition)
 import Bouzuya.CommandLineOption.ObjectToRecord (class OptionRecordBuilder)
 import Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
-import Bouzuya.CommandLineOption.TypedOptionDefinition (TypedOptionDefinition)
-import Bouzuya.CommandLineOption.TypedOptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption) as TypedOptionDefinition
+import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition)
+import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition, booleanOption, maybeStringOption, stringOption) as OptionDefinition
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Bouzuya.CommandLineOption.RecordToArray (class ArrayBuilder)
 import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
@@ -23,7 +23,7 @@ type Parsed r =
   }
 
 class DefsToVals (l1 :: RowList) (l2 :: RowList) | l1 -> l2
-instance defsToValsCons :: DefsToVals t1 t2 => DefsToVals (Cons l (TypedOptionDefinition a) t1) (Cons l a t2)
+instance defsToValsCons :: DefsToVals t1 t2 => DefsToVals (Cons l (OptionDefinition a) t1) (Cons l a t2)
 instance defsToValsNil :: DefsToVals Nil Nil
 
 parse :: forall r1 r2 l1 l2 l3

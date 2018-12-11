@@ -2,10 +2,10 @@ module Test.Bouzuya.CommandLineOption.RecordToArray
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
+import Bouzuya.CommandLineOption (OptionDefinition, booleanOption, maybeStringOption, stringOption)
 import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, withName)
 import Bouzuya.CommandLineOption.RecordToArray (toArray)
-import Bouzuya.CommandLineOption.TypedOptionDefinition (fromTyped)
+import Bouzuya.CommandLineOption.OptionDefinition (untyped)
 import Data.Maybe (Maybe(..))
 import Prelude ((==))
 import Test.Unit (TestSuite, suite, test)
@@ -17,11 +17,11 @@ tests = suite "Bouzuya.CommandLineOption.RecordToArray" do
     f = toArray
 
     defRecord ::
-      { inFile :: TypedOptionDefinition (Maybe String)
-      , inFormat :: TypedOptionDefinition String
-      , outFormat :: TypedOptionDefinition String
-      , verbose :: TypedOptionDefinition Boolean
-      , version :: TypedOptionDefinition Boolean
+      { inFile :: OptionDefinition (Maybe String)
+      , inFormat :: OptionDefinition String
+      , outFormat :: OptionDefinition String
+      , verbose :: OptionDefinition Boolean
+      , version :: OptionDefinition Boolean
       }
     defRecord =
       { inFile: maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
@@ -33,11 +33,11 @@ tests = suite "Bouzuya.CommandLineOption.RecordToArray" do
 
     defArray :: Array NamedOptionDefinition
     defArray =
-      [ withName "inFile" (fromTyped defRecord.inFile)
-      , withName "inFormat" (fromTyped defRecord.inFormat)
-      , withName "outFormat" (fromTyped defRecord.outFormat)
-      , withName "verbose" (fromTyped defRecord.verbose)
-      , withName "version" (fromTyped defRecord.version)
+      [ withName "inFile" (untyped defRecord.inFile)
+      , withName "inFormat" (untyped defRecord.inFormat)
+      , withName "outFormat" (untyped defRecord.outFormat)
+      , withName "verbose" (untyped defRecord.verbose)
+      , withName "version" (untyped defRecord.version)
       ]
 
   test "example" do

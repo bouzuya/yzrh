@@ -3,9 +3,9 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ) where
 
 import Bouzuya.CommandLineOption.NamedOptionDefinition (withName)
+import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, maybeStringOption, stringOption, untyped)
 import Bouzuya.CommandLineOption.OptionObject (OptionObject, getFirstValue, getValues, hasKey, parse)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
-import Bouzuya.CommandLineOption.TypedOptionDefinition (booleanOption, fromTyped, maybeStringOption, stringOption)
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -19,10 +19,10 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
   let
     f = parse
     defs =
-      [ withName "aString" (fromTyped (stringOption "a-string" (Just 'a') "<a>" "a string option" "a1"))
-      , withName "bString" (fromTyped (maybeStringOption "b-string" (Just 'b') "<b>" "b string option" Nothing))
-      , withName "cBoolean" (fromTyped (booleanOption "c-boolean" (Just 'c') "c boolean option"))
-      , withName "dBoolean" (fromTyped (booleanOption "d-boolean" (Just 'd') "d boolean option"))
+      [ withName "aString" (untyped (stringOption "a-string" (Just 'a') "<a>" "a string option" "a1"))
+      , withName "bString" (untyped (maybeStringOption "b-string" (Just 'b') "<b>" "b string option" Nothing))
+      , withName "cBoolean" (untyped (booleanOption "c-boolean" (Just 'c') "c boolean option"))
+      , withName "dBoolean" (untyped (booleanOption "d-boolean" (Just 'd') "d boolean option"))
       ]
     defaults =
       o

@@ -2,9 +2,9 @@ module Test.Bouzuya.CommandLineOption.OptionDefinition
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
+import Bouzuya.CommandLineOption (OptionDefinition, booleanOption, maybeStringOption, stringOption)
 import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, getName, withName)
-import Bouzuya.CommandLineOption.TypedOptionDefinition (fromTyped)
+import Bouzuya.CommandLineOption.OptionDefinition (untyped)
 import Bouzuya.CommandLineOption.UntypedOptionDefinition (UntypedOptionDefinition, getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
@@ -15,20 +15,20 @@ tests :: TestSuite
 tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
   let
     -- public apis
-    s :: TypedOptionDefinition String
+    s :: OptionDefinition String
     s = stringOption "st" (Just 's') "ST" "st help" "default"
-    b :: TypedOptionDefinition Boolean
+    b :: OptionDefinition Boolean
     b = booleanOption "bo" (Just 'b') "bo help"
-    m :: TypedOptionDefinition (Maybe String)
+    m :: OptionDefinition (Maybe String)
     m = maybeStringOption "ms" (Just 'm') "MS" "ms help" Nothing
     defs = { str: s, boo: b, may: m }
     -- private apis
     s' :: UntypedOptionDefinition
-    s' = fromTyped s
+    s' = untyped s
     b' :: UntypedOptionDefinition
-    b' = fromTyped b
+    b' = untyped b
     m' :: UntypedOptionDefinition
-    m' = fromTyped m
+    m' = untyped m
     s'' :: NamedOptionDefinition
     s'' = withName "str" s'
     b'' :: NamedOptionDefinition

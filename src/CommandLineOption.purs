@@ -16,11 +16,11 @@ type CommandLineOptions =
   }
 
 defs ::
-  { inFile :: CommandLineOption.TypedOptionDefinition (Maybe String)
-  , inFormat :: CommandLineOption.TypedOptionDefinition String
-  , outFormat :: CommandLineOption.TypedOptionDefinition String
-  , verbose :: CommandLineOption.TypedOptionDefinition Boolean
-  , version :: CommandLineOption.TypedOptionDefinition Boolean
+  { inFile :: CommandLineOption.OptionDefinition (Maybe String)
+  , inFormat :: CommandLineOption.OptionDefinition String
+  , outFormat :: CommandLineOption.OptionDefinition String
+  , verbose :: CommandLineOption.OptionDefinition Boolean
+  , version :: CommandLineOption.OptionDefinition Boolean
   }
 defs =
   { inFile: CommandLineOption.maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
