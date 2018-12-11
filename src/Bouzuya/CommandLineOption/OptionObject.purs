@@ -9,7 +9,8 @@ module Bouzuya.CommandLineOption.OptionObject
   , parse
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, getDefaultValue, getLongName, getName, getShortName, isValueMultiple, isValueRequired)
+import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, getName, getOption)
+import Bouzuya.CommandLineOption.OptionDefinition (getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
 import Data.Array as Array
 import Data.Either (Either(..), note)
 import Data.Foldable (class Foldable, foldl, foldM, foldlDefault)
@@ -57,15 +58,15 @@ defaultValues :: Array NamedOptionDefinition -> OptionObject
 defaultValues defs =
   OptionObject
     (foldlDefault
-      (\o d -> Object.alter (const (getDefaultValue d)) (getName d) o)
+      (\o d -> Object.alter (const (getDefaultValue (getOption d))) (getName d) o)
       Object.empty
       defs)
 
 findByOptionName :: OptionName -> Array NamedOptionDefinition -> Maybe NamedOptionDefinition
 findByOptionName (Long l) =
-  Array.find (\d -> getLongName d == l)
+  Array.find (\d -> getLongName (getOption d) == l)
 findByOptionName (Short s) =
-  Array.find (\d -> map String.codePointFromChar (getShortName d) == Just s)
+  Array.find (\d -> map String.codePointFromChar (getShortName (getOption d)) == Just s)
 
 -- TODO: remove
 fromFoldable ::
@@ -96,7 +97,7 @@ insertOrUpdate ::
   -> Either String OptionObject
 insertOrUpdate d v (OptionObject o) = do
   let k = getName d
-  assert' "many times" (isValueMultiple d || not (Object.member k o))
+  assert' "many times" (isValueMultiple (getOption d) || not (Object.member k o))
   pure (OptionObject (Object.alter (\m -> Just ((fromMaybe [] m) <> v)) k o))
 
 parse :: Array NamedOptionDefinition -> Array String -> Either String ParsedOption
@@ -119,13 +120,13 @@ parse defs ss = do
           def <- note "unknown option" (findByOptionName name defs)
           case valueMaybe of
             Just value ->
-              if isValueRequired def then do
+              if isValueRequired (getOption def) then do
                 o <- addStringOptionValue def value options
                 Right a { options = o }
               else
                 Left "boolean option can't specify value" -- TODO: add option name
             Nothing ->
-              if isValueRequired def then
+              if isValueRequired (getOption def) then
                 Right a { processing = Just def }
               else do
                 o <- addBooleanOptionValue def options
@@ -135,7 +136,7 @@ parse defs ss = do
           foldM
             (\a'@{ options: options' } { name, value: valueMaybe } -> do
               def <- note "unknown boolean option" (findByOptionName name defs) -- TODO: add option name
-              _ <- assert' "-abc are boolean options" (not (isValueRequired def)) -- TODO: add option names
+              _ <- assert' "-abc are boolean options" (not (isValueRequired (getOption def))) -- TODO: add option names
               _ <- assert' "-abc=val is invalid format" (isNothing valueMaybe) -- TODO: add option
               o <- addBooleanOptionValue def options'
               Right a' { options = o })

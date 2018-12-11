@@ -2,8 +2,10 @@ module Test.Bouzuya.CommandLineOption.RecordToArray
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, fromTyped, maybeStringOption, stringOption, withName)
+import Bouzuya.CommandLineOption (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
+import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, withName)
 import Bouzuya.CommandLineOption.RecordToArray (toArray)
+import Bouzuya.CommandLineOption.TypedOptionDefinition (fromTyped)
 import Data.Maybe (Maybe(..))
 import Prelude ((==))
 import Test.Unit (TestSuite, suite, test)

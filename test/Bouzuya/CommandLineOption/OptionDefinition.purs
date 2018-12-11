@@ -2,7 +2,10 @@ module Test.Bouzuya.CommandLineOption.OptionDefinition
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, OptionDefinition, TypedOptionDefinition, booleanOption, fromTyped, getDefaultValue, getLongName, getName, getShortName, isValueRequired, maybeStringOption, stringOption, withName)
+import Bouzuya.CommandLineOption (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
+import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, getName, withName)
+import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
+import Bouzuya.CommandLineOption.TypedOptionDefinition (fromTyped)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
 import Test.Unit (TestSuite, suite, test)
@@ -34,26 +37,26 @@ tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
     m'' = withName "may" m'
     defs' = [ s', b', m' ]
   test "getDefaultValue" do
-    Assert.equal (Just ["default"]) (getDefaultValue s'')
-    Assert.equal Nothing (getDefaultValue b'')
-    Assert.equal Nothing (getDefaultValue m'')
+    Assert.equal (Just ["default"]) (getDefaultValue s')
+    Assert.equal Nothing (getDefaultValue b')
+    Assert.equal Nothing (getDefaultValue m')
   test "getLongName" do
-    Assert.equal "st" (getLongName s'')
-    Assert.equal "bo" (getLongName b'')
-    Assert.equal "ms" (getLongName m'')
+    Assert.equal "st" (getLongName s')
+    Assert.equal "bo" (getLongName b')
+    Assert.equal "ms" (getLongName m')
   test "getName" do
     Assert.equal "str" (getName s'')
     Assert.equal "boo" (getName b'')
     Assert.equal "may" (getName m'')
   test "getShortName" do
-    Assert.equal (Just 's') (getShortName s'')
-    Assert.equal (Just 'b') (getShortName b'')
-    Assert.equal (Just 'm') (getShortName m'')
+    Assert.equal (Just 's') (getShortName s')
+    Assert.equal (Just 'b') (getShortName b')
+    Assert.equal (Just 'm') (getShortName m')
   test "isValueRequired" do
-    Assert.equal true (isValueRequired s'')
-    Assert.equal false (isValueRequired b'')
-    Assert.equal true (isValueRequired m'')
-  test "isValueRequired" do
-    Assert.equal true (isValueRequired s'')
-    Assert.equal false (isValueRequired b'')
-    Assert.equal true (isValueRequired m'')
+    Assert.equal true (isValueRequired s')
+    Assert.equal false (isValueRequired b')
+    Assert.equal true (isValueRequired m')
+  test "isValueMultiple" do
+    Assert.equal false (isValueMultiple s')
+    Assert.equal false (isValueMultiple b')
+    Assert.equal false (isValueMultiple m')

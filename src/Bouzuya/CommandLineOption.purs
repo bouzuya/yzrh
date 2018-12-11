@@ -1,13 +1,14 @@
 module Bouzuya.CommandLineOption
   ( class DefsToVals
-  , module ExportOptionDefinition
+  , module TypedOptionDefinition
   , parse
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition)
-import Bouzuya.CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption) as ExportOptionDefinition
+import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition)
 import Bouzuya.CommandLineOption.ObjectToRecord (class OptionRecordBuilder)
 import Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
+import Bouzuya.CommandLineOption.TypedOptionDefinition (TypedOptionDefinition)
+import Bouzuya.CommandLineOption.TypedOptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption) as TypedOptionDefinition
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Bouzuya.CommandLineOption.RecordToArray (class ArrayBuilder)
 import Bouzuya.CommandLineOption.RecordToArray as RecordToArray

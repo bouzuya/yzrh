@@ -2,9 +2,10 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, fromTyped, maybeStringOption, stringOption, withName)
+import Bouzuya.CommandLineOption.NamedOptionDefinition (withName)
 import Bouzuya.CommandLineOption.OptionObject (OptionObject, getFirstValue, getValues, hasKey, parse)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
+import Bouzuya.CommandLineOption.TypedOptionDefinition (booleanOption, fromTyped, maybeStringOption, stringOption)
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))

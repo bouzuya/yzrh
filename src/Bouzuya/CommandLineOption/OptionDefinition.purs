@@ -1,22 +1,18 @@
 module Bouzuya.CommandLineOption.OptionDefinition
-  ( NamedOptionDefinition
-  , OptionDefinition -- TODO
-  , TypedOptionDefinition
-  , booleanOption
-  , fromTyped
+  ( Help
+  , LongName
+  , MetaVar
+  , Multiple
+  , OptionDefinition
+  , ShortName
   , getDefaultValue
   , getLongName
-  , getName
   , getShortName
   , isValueMultiple
   , isValueRequired
-  , maybeStringOption
-  , stringOption
-  , withName -- TODO
+  , option
   ) where
 
-import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
-import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String as String
@@ -31,31 +27,6 @@ type MetaVar = String
 
 type Multiple = Boolean
 
-type Name = String
-
-data NamedOptionDefinition
-  = NamedOptionDefinition Name OptionDefinition
-
-instance toElementBoolean ::
-  RecordToArray.ToElement
-    (TypedOptionDefinition Boolean)
-    NamedOptionDefinition where
-  toElement name a = withName name (fromTyped a)
-
-instance toElementMaybeString ::
-  RecordToArray.ToElement
-    (TypedOptionDefinition (Maybe String))
-    NamedOptionDefinition where
-  toElement name a = withName name (fromTyped a)
-
-instance toElementString ::
-  RecordToArray.ToElement
-    (TypedOptionDefinition String)
-    NamedOptionDefinition where
-  toElement name a = withName name (fromTyped a)
-
-derive instance eqNamedOptionDefinition :: Eq NamedOptionDefinition
-
 data OptionDefinition
   = OptionDefinition
       LongName
@@ -69,57 +40,26 @@ derive instance eqOptionDefinition :: Eq OptionDefinition
 
 type ShortName = CodePoint
 
-data TypedOptionDefinition a
-  = TypedOptionDefinition OptionDefinition
-
-booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
-booleanOption l s h = TypedOptionDefinition (option l s h [] Nothing)
-
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
 
-fromTyped :: forall a. TypedOptionDefinition a -> OptionDefinition
-fromTyped (TypedOptionDefinition d) = d
+getDefaultValue :: OptionDefinition -> Maybe (Array String)
+getDefaultValue (OptionDefinition _ _ _ _ [] _) = Nothing
+getDefaultValue (OptionDefinition _ _ _ _ _ v) = v
 
-getDefaultValue :: NamedOptionDefinition -> Maybe (Array String)
-getDefaultValue (NamedOptionDefinition _ o) = getDefaultValue' o
+getLongName :: OptionDefinition -> String
+getLongName (OptionDefinition long _ _ _ _ _) = long
 
-getDefaultValue' :: OptionDefinition -> Maybe (Array String)
-getDefaultValue' (OptionDefinition _ _ _ _ [] _) = Nothing
-getDefaultValue' (OptionDefinition _ _ _ _ _ v) = v
-
-getLongName :: NamedOptionDefinition -> String
-getLongName (NamedOptionDefinition _ o) = getLongName' o
-
-getLongName' :: OptionDefinition -> String
-getLongName' (OptionDefinition long _ _ _ _ _) = long
-
-getName :: NamedOptionDefinition -> String
-getName (NamedOptionDefinition name _) = name
-
-getShortName :: NamedOptionDefinition -> Maybe Char
-getShortName (NamedOptionDefinition _ o) = getShortName' o
-
-getShortName' :: OptionDefinition -> Maybe Char
-getShortName' (OptionDefinition _ short _ _ _ _)
+getShortName :: OptionDefinition -> Maybe Char
+getShortName (OptionDefinition _ short _ _ _ _)
   = join (map charFromCodePoint short)
 
-isValueMultiple :: NamedOptionDefinition -> Boolean
-isValueMultiple (NamedOptionDefinition _ o) = isValueMultiple' o
+isValueMultiple :: OptionDefinition -> Boolean
+isValueMultiple (OptionDefinition _ _ _ b _ _) = b
 
-isValueMultiple' :: OptionDefinition -> Boolean
-isValueMultiple' (OptionDefinition _ _ _ b _ _) = b
-
-isValueRequired :: NamedOptionDefinition -> Boolean
-isValueRequired (NamedOptionDefinition _ o) = isValueRequired' o
-
-isValueRequired' :: OptionDefinition -> Boolean
-isValueRequired' (OptionDefinition _ _ _ _ [] _) = false
-isValueRequired' (OptionDefinition _ _ _ _ _ _) = true
-
-maybeStringOption :: LongName -> Maybe Char -> MetaVar -> Help -> Maybe String -> TypedOptionDefinition (Maybe String)
-maybeStringOption l s m h v =
-  TypedOptionDefinition (option l s h [m] (map Array.singleton v))
+isValueRequired :: OptionDefinition -> Boolean
+isValueRequired (OptionDefinition _ _ _ _ [] _) = false
+isValueRequired (OptionDefinition _ _ _ _ _ _) = true
 
 option ::
   LongName
@@ -130,9 +70,3 @@ option ::
   -> OptionDefinition
 option l s h m v =
   OptionDefinition l (map String.codePointFromChar s) h false m v
-
-stringOption :: LongName -> Maybe Char -> MetaVar -> Help -> String -> TypedOptionDefinition String
-stringOption l s m h v = TypedOptionDefinition (option l s h [m] (Just [v]))
-
-withName :: String -> OptionDefinition -> NamedOptionDefinition
-withName = NamedOptionDefinition
