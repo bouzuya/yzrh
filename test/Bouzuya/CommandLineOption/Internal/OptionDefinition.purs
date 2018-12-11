@@ -2,7 +2,7 @@ module Test.Bouzuya.CommandLineOption.Internal.OptionDefinition
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.Internal.OptionDefinition (NamedOptionDefinition, OptionDefinition, TypedOptionDefinition, booleanOption, booleanOptionFromTyped, getDefaultValue, getLongName, getName, getShortName, isValueRequired, maybeStringOption, maybeStringOptionFromTyped, stringOption, stringOptionFromTyped, withName)
+import Bouzuya.CommandLineOption.Internal.OptionDefinition (NamedOptionDefinition, OptionDefinition, TypedOptionDefinition, booleanOption, fromTyped, getDefaultValue, getLongName, getName, getShortName, isValueRequired, maybeStringOption, stringOption, withName)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
 import Test.Unit (TestSuite, suite, test)
@@ -21,11 +21,11 @@ tests = suite "Bouzuya.CommandLineOption.Internal.OptionDefinition" do
     defs = { str: s, boo: b, may: m }
     -- private apis
     s' :: OptionDefinition
-    s' = stringOptionFromTyped s
+    s' = fromTyped s
     b' :: OptionDefinition
-    b' = booleanOptionFromTyped b
+    b' = fromTyped b
     m' :: OptionDefinition
-    m' = maybeStringOptionFromTyped m
+    m' = fromTyped m
     s'' :: NamedOptionDefinition
     s'' = withName "str" s'
     b'' :: NamedOptionDefinition

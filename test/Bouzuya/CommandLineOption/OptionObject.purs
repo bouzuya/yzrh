@@ -2,7 +2,7 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.Internal.OptionDefinition (booleanOption', stringOption')
+import Bouzuya.CommandLineOption.Internal.OptionDefinition (booleanOption, fromTyped, maybeStringOption, stringOption, withName)
 import Bouzuya.CommandLineOption.OptionObject (OptionObject, getFirstValue, getValues, hasKey, parse)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Array as Array
@@ -18,34 +18,10 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
   let
     f = parse
     defs =
-      [ stringOption'
-        { help: "a string option"
-        , long: "a-string"
-        , metavar: "<a>"
-        , name: "aString"
-        , short: Just 'a'
-        , value: Just "a1"
-        }
-      , stringOption'
-        { help: "b string option"
-        , long: "b-string"
-        , metavar: "<b>"
-        , name: "bString"
-        , short: Just 'b'
-        , value: Nothing
-        }
-      , booleanOption'
-        { help: "c boolean option"
-        , long: "c-boolean"
-        , name: "cBoolean"
-        , short: Just 'c'
-        }
-      , booleanOption'
-        { help: "d boolean option"
-        , long: "d-boolean"
-        , name: "dBoolean"
-        , short: Just 'd'
-        }
+      [ withName "aString" (fromTyped (stringOption "a-string" (Just 'a') "<a>" "a string option" "a1"))
+      , withName "bString" (fromTyped (maybeStringOption "b-string" (Just 'b') "<b>" "b string option" Nothing))
+      , withName "cBoolean" (fromTyped (booleanOption "c-boolean" (Just 'c') "c boolean option"))
+      , withName "dBoolean" (fromTyped (booleanOption "d-boolean" (Just 'd') "d boolean option"))
       ]
     defaults =
       o

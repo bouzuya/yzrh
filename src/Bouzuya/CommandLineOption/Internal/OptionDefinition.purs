@@ -1,12 +1,9 @@
 module Bouzuya.CommandLineOption.Internal.OptionDefinition
-  ( BooleanOptionInfo -- TODO: delete
-  , NamedOptionDefinition
+  ( NamedOptionDefinition
   , OptionDefinition -- TODO
-  , StringOptionInfo -- TODO: delete
   , TypedOptionDefinition
   , booleanOption
-  , booleanOptionFromTyped
-  , booleanOption' -- TODO: delete
+  , fromTyped
   , getDefaultValue
   , getLongName
   , getName
@@ -14,10 +11,7 @@ module Bouzuya.CommandLineOption.Internal.OptionDefinition
   , isValueMultiple
   , isValueRequired
   , maybeStringOption
-  , maybeStringOptionFromTyped
   , stringOption
-  , stringOptionFromTyped
-  , stringOption' -- TODO: delete
   , withName -- TODO
   ) where
 
@@ -28,22 +22,6 @@ import Data.String (CodePoint)
 import Data.String as String
 import Data.String.CodeUnits as CodeUnit
 import Prelude (class Eq, join, map)
-
-type BooleanOptionInfo =
-  { help :: String
-  , long :: String
-  , name :: String
-  , short :: Maybe Char
-  }
-
-type StringOptionInfo =
-  { help :: String
-  , long :: String
-  , metavar :: String
-  , name :: String
-  , short :: Maybe Char
-  , value :: Maybe String
-  }
 
 type Help = String
 
@@ -62,22 +40,19 @@ instance toElementBoolean ::
   RecordToArray.ToElement
     (TypedOptionDefinition Boolean)
     NamedOptionDefinition where
-  toElement name a =
-    withName name (booleanOptionFromTyped a)
+  toElement name a = withName name (fromTyped a)
 
 instance toElementMaybeString ::
   RecordToArray.ToElement
     (TypedOptionDefinition (Maybe String))
     NamedOptionDefinition where
-  toElement name a =
-    withName name (maybeStringOptionFromTyped a)
+  toElement name a = withName name (fromTyped a)
 
 instance toElementString ::
   RecordToArray.ToElement
     (TypedOptionDefinition String)
     NamedOptionDefinition where
-  toElement name a =
-    withName name (stringOptionFromTyped a)
+  toElement name a = withName name (fromTyped a)
 
 derive instance eqNamedOptionDefinition :: Eq NamedOptionDefinition
 
@@ -100,15 +75,11 @@ data TypedOptionDefinition a
 booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
 booleanOption l s h = TypedOptionDefinition (option l s h [] Nothing)
 
-booleanOptionFromTyped :: TypedOptionDefinition Boolean -> OptionDefinition
-booleanOptionFromTyped (TypedOptionDefinition d) = d
-
-booleanOption' :: BooleanOptionInfo -> NamedOptionDefinition
-booleanOption' info =
-  withName info.name (option info.long info.short info.help [] Nothing)
-
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
+
+fromTyped :: forall a. TypedOptionDefinition a -> OptionDefinition
+fromTyped (TypedOptionDefinition d) = d
 
 getDefaultValue :: NamedOptionDefinition -> Maybe (Array String)
 getDefaultValue (NamedOptionDefinition _ o) = getDefaultValue' o
@@ -150,9 +121,6 @@ maybeStringOption :: LongName -> Maybe Char -> MetaVar -> Help -> Maybe String -
 maybeStringOption l s m h v =
   TypedOptionDefinition (option l s h [m] (map Array.singleton v))
 
-maybeStringOptionFromTyped :: TypedOptionDefinition (Maybe String) -> OptionDefinition
-maybeStringOptionFromTyped (TypedOptionDefinition d) = d
-
 option ::
   LongName
   -> Maybe Char
@@ -165,20 +133,6 @@ option l s h m v =
 
 stringOption :: LongName -> Maybe Char -> MetaVar -> Help -> String -> TypedOptionDefinition String
 stringOption l s m h v = TypedOptionDefinition (option l s h [m] (Just [v]))
-
-stringOptionFromTyped :: TypedOptionDefinition String -> OptionDefinition
-stringOptionFromTyped (TypedOptionDefinition d) = d
-
-stringOption' :: StringOptionInfo -> NamedOptionDefinition
-stringOption' info =
-  withName
-    info.name
-    (option
-      info.long
-      info.short
-      info.help
-      [info.metavar]
-      (map Array.singleton info.value))
 
 withName :: String -> OptionDefinition -> NamedOptionDefinition
 withName = NamedOptionDefinition

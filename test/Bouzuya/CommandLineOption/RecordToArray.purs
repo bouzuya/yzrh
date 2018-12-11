@@ -2,7 +2,7 @@ module Test.Bouzuya.CommandLineOption.RecordToArray
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.Internal.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, booleanOption', maybeStringOption, stringOption, stringOption')
+import Bouzuya.CommandLineOption.Internal.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition, booleanOption, fromTyped, maybeStringOption, stringOption, withName)
 import Bouzuya.CommandLineOption.RecordToArray (toArray)
 import Data.Maybe (Maybe(..))
 import Prelude ((==))
@@ -14,14 +14,14 @@ tests = suite "Bouzuya.CommandLineOption.RecordToArray" do
   let
     f = toArray
 
-    optionDefinitions' ::
+    defRecord ::
       { inFile :: TypedOptionDefinition (Maybe String)
       , inFormat :: TypedOptionDefinition String
       , outFormat :: TypedOptionDefinition String
       , verbose :: TypedOptionDefinition Boolean
       , version :: TypedOptionDefinition Boolean
       }
-    optionDefinitions' =
+    defRecord =
       { inFile: maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
       , inFormat: stringOption "in-format" (Just 'i') "<format>" "input file format" "json"
       , outFormat: stringOption "out-format" (Just 'o') "<format>" "output file format" "json"
@@ -29,45 +29,14 @@ tests = suite "Bouzuya.CommandLineOption.RecordToArray" do
       , version: booleanOption "version" (Just 'V') "show version"
       }
 
-    optionDefinitions :: Array NamedOptionDefinition
-    optionDefinitions =
-      [ stringOption'
-        { help: "input file"
-        , long: "in-file"
-        , metavar: "<file>"
-        , name: "inFile"
-        , short: Just 'f'
-        , value: Nothing
-        }
-      , stringOption'
-        { help: "input file format"
-        , long: "in-format"
-        , metavar: "<format>"
-        , name: "inFormat"
-        , short: Just 'i'
-        , value: Just "json"
-        }
-      , stringOption'
-        { help: "output file format"
-        , long: "out-format"
-        , metavar: "<format>"
-        , name: "outFormat"
-        , short: Just 'o'
-        , value: Just "json"
-        }
-      , booleanOption'
-        { help: "verbose"
-        , long: "verbose"
-        , name: "verbose"
-        , short: Just 'v'
-        }
-      , booleanOption'
-        { help: "show version"
-        , long: "version"
-        , name: "version"
-        , short: Just 'V'
-        }
+    defArray :: Array NamedOptionDefinition
+    defArray =
+      [ withName "inFile" (fromTyped defRecord.inFile)
+      , withName "inFormat" (fromTyped defRecord.inFormat)
+      , withName "outFormat" (fromTyped defRecord.outFormat)
+      , withName "verbose" (fromTyped defRecord.verbose)
+      , withName "version" (fromTyped defRecord.version)
       ]
 
   test "example" do
-    Assert.assert "==" (optionDefinitions == (f optionDefinitions'))
+    Assert.assert "==" (defArray == (f defRecord))
