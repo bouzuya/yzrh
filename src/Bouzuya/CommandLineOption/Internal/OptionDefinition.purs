@@ -82,29 +82,34 @@ instance toElementString ::
 derive instance eqNamedOptionDefinition :: Eq NamedOptionDefinition
 
 data OptionDefinition
-  = OptionDefinition OptionInfo (Maybe String)
+  = OptionDefinition OptionInfo
 
 derive instance eqOptionDefinition :: Eq OptionDefinition
 
 data OptionInfo
-  = OptionInfo LongName (Maybe ShortName) Help Multiple (Array MetaVar)
+  = OptionInfo
+      LongName
+      (Maybe ShortName)
+      Help
+      Multiple
+      (Array MetaVar)
+      (Maybe (Array String))
 
 derive instance eqOptionInfo :: Eq OptionInfo
 
 type ShortName = CodePoint
 
 data TypedOptionDefinition a
-  = TypedOptionDefinition OptionInfo a
+  = TypedOptionDefinition OptionInfo
 
 booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
 booleanOption l s h =
   TypedOptionDefinition
-    (OptionInfo l (map String.codePointFromChar s) h false [])
-    true
+    (OptionInfo l (map String.codePointFromChar s) h false [] Nothing)
 
 booleanOptionFromTyped :: TypedOptionDefinition Boolean -> OptionDefinition
-booleanOptionFromTyped (TypedOptionDefinition info _) =
-  OptionDefinition info Nothing
+booleanOptionFromTyped (TypedOptionDefinition info) =
+  OptionDefinition info
 
 booleanOption' :: BooleanOptionInfo -> NamedOptionDefinition
 booleanOption' info =
@@ -116,8 +121,8 @@ booleanOption' info =
         (map String.codePointFromChar info.short)
         info.help
         false
-        [])
-      Nothing)
+        []
+        Nothing))
 
 charFromCodePoint :: CodePoint -> Maybe Char
 charFromCodePoint cp = CodeUnit.charAt 0 (String.singleton cp)
@@ -126,14 +131,14 @@ getDefaultValue :: NamedOptionDefinition -> Maybe (Array String)
 getDefaultValue (NamedOptionDefinition _ o) = getDefaultValue' o
 
 getDefaultValue' :: OptionDefinition -> Maybe (Array String)
-getDefaultValue' (OptionDefinition (OptionInfo _ _ _ _ []) _) = Nothing
-getDefaultValue' (OptionDefinition _ value) = map Array.singleton value
+getDefaultValue' (OptionDefinition (OptionInfo _ _ _ _ [] _)) = Nothing
+getDefaultValue' (OptionDefinition (OptionInfo _ _ _ _ _ v)) = v
 
 getLongName :: NamedOptionDefinition -> String
 getLongName (NamedOptionDefinition _ o) = getLongName' o
 
 getLongName' :: OptionDefinition -> String
-getLongName' (OptionDefinition (OptionInfo long _ _ _ _) _) = long
+getLongName' (OptionDefinition (OptionInfo long _ _ _ _ _)) = long
 
 getName :: NamedOptionDefinition -> String
 getName (NamedOptionDefinition name _) = name
@@ -142,41 +147,38 @@ getShortName :: NamedOptionDefinition -> Maybe Char
 getShortName (NamedOptionDefinition _ o) = getShortName' o
 
 getShortName' :: OptionDefinition -> Maybe Char
-getShortName' (OptionDefinition (OptionInfo _ short _ _ _) _)
+getShortName' (OptionDefinition (OptionInfo _ short _ _ _ _))
   = join (map charFromCodePoint short)
 
 isValueMultiple :: NamedOptionDefinition -> Boolean
 isValueMultiple (NamedOptionDefinition _ o) = isValueMultiple' o
 
 isValueMultiple' :: OptionDefinition -> Boolean
-isValueMultiple' (OptionDefinition (OptionInfo _ _ _ b _) _) = b
+isValueMultiple' (OptionDefinition (OptionInfo _ _ _ b _ _)) = b
 
 isValueRequired :: NamedOptionDefinition -> Boolean
 isValueRequired (NamedOptionDefinition _ o) = isValueRequired' o
 
 isValueRequired' :: OptionDefinition -> Boolean
-isValueRequired' (OptionDefinition (OptionInfo _ _ _ _ []) _) = false
-isValueRequired' (OptionDefinition _ _) = true
+isValueRequired' (OptionDefinition (OptionInfo _ _ _ _ [] _)) = false
+isValueRequired' (OptionDefinition _) = true
 
 maybeStringOption :: LongName -> Maybe Char -> MetaVar -> Help -> Maybe String -> TypedOptionDefinition (Maybe String)
 maybeStringOption l s m h v =
   TypedOptionDefinition
-    (OptionInfo l (map String.codePointFromChar s) h false [m])
-    v
+    (OptionInfo l (map String.codePointFromChar s) h false [m] (map Array.singleton v))
 
 maybeStringOptionFromTyped :: TypedOptionDefinition (Maybe String) -> OptionDefinition
-maybeStringOptionFromTyped (TypedOptionDefinition info value) =
-  OptionDefinition info value
+maybeStringOptionFromTyped (TypedOptionDefinition info) = OptionDefinition info
 
 stringOption :: LongName -> Maybe Char -> MetaVar -> Help -> String -> TypedOptionDefinition String
 stringOption l s m h v =
   TypedOptionDefinition
-    (OptionInfo l (map String.codePointFromChar s) h false [m])
-    v
+    (OptionInfo l (map String.codePointFromChar s) h false [m] (Just [v]))
 
 stringOptionFromTyped :: TypedOptionDefinition String -> OptionDefinition
-stringOptionFromTyped (TypedOptionDefinition info value) =
-  OptionDefinition info (Just value)
+stringOptionFromTyped (TypedOptionDefinition info) =
+  OptionDefinition info
 
 stringOption' :: StringOptionInfo -> NamedOptionDefinition
 stringOption' info =
@@ -188,8 +190,8 @@ stringOption' info =
         (map String.codePointFromChar info.short)
         info.help
         false
-        [info.metavar])
-      info.value)
+        [info.metavar]
+        (map Array.singleton info.value)))
 
 withName :: String -> OptionDefinition -> NamedOptionDefinition
 withName = NamedOptionDefinition
