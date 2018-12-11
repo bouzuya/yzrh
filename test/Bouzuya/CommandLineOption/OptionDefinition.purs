@@ -4,8 +4,8 @@ module Test.Bouzuya.CommandLineOption.OptionDefinition
 
 import Bouzuya.CommandLineOption (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
 import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, getName, withName)
-import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition, getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
 import Bouzuya.CommandLineOption.TypedOptionDefinition (fromTyped)
+import Bouzuya.CommandLineOption.UntypedOptionDefinition (UntypedOptionDefinition, getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
 import Test.Unit (TestSuite, suite, test)
@@ -23,11 +23,11 @@ tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
     m = maybeStringOption "ms" (Just 'm') "MS" "ms help" Nothing
     defs = { str: s, boo: b, may: m }
     -- private apis
-    s' :: OptionDefinition
+    s' :: UntypedOptionDefinition
     s' = fromTyped s
-    b' :: OptionDefinition
+    b' :: UntypedOptionDefinition
     b' = fromTyped b
-    m' :: OptionDefinition
+    m' :: UntypedOptionDefinition
     m' = fromTyped m
     s'' :: NamedOptionDefinition
     s'' = withName "str" s'

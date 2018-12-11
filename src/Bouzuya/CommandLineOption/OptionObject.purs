@@ -10,7 +10,7 @@ module Bouzuya.CommandLineOption.OptionObject
   ) where
 
 import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, getName, getOption)
-import Bouzuya.CommandLineOption.OptionDefinition (getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
+import Bouzuya.CommandLineOption.UntypedOptionDefinition (getDefaultValue, getLongName, getShortName, isValueMultiple, isValueRequired)
 import Data.Array as Array
 import Data.Either (Either(..), note)
 import Data.Foldable (class Foldable, foldl, foldM, foldlDefault)

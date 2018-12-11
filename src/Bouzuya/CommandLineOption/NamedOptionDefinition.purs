@@ -5,21 +5,21 @@ module Bouzuya.CommandLineOption.NamedOptionDefinition
   , withName
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition)
+import Bouzuya.CommandLineOption.UntypedOptionDefinition (UntypedOptionDefinition)
 import Prelude (class Eq)
 
 type Name = String
 
 data NamedOptionDefinition
-  = NamedOptionDefinition Name OptionDefinition
+  = NamedOptionDefinition Name UntypedOptionDefinition
 
 derive instance eqNamedOptionDefinition :: Eq NamedOptionDefinition
 
 getName :: NamedOptionDefinition -> String
 getName (NamedOptionDefinition name _) = name
 
-getOption :: NamedOptionDefinition -> OptionDefinition
+getOption :: NamedOptionDefinition -> UntypedOptionDefinition
 getOption (NamedOptionDefinition _ o) = o
 
-withName :: String -> OptionDefinition -> NamedOptionDefinition
+withName :: String -> UntypedOptionDefinition -> NamedOptionDefinition
 withName = NamedOptionDefinition

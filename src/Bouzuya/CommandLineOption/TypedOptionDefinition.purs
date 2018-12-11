@@ -7,8 +7,8 @@ module Bouzuya.CommandLineOption.TypedOptionDefinition
   ) where
 
 import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition, withName)
-import Bouzuya.CommandLineOption.OptionDefinition (Help, LongName, OptionDefinition, MetaVar, option)
 import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
+import Bouzuya.CommandLineOption.UntypedOptionDefinition (Help, LongName, UntypedOptionDefinition, MetaVar, option)
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Prelude (map)
@@ -32,12 +32,12 @@ instance toElementString ::
   toElement name a = withName name (fromTyped a)
 
 data TypedOptionDefinition a
-  = TypedOptionDefinition OptionDefinition
+  = TypedOptionDefinition UntypedOptionDefinition
 
 booleanOption :: LongName -> Maybe Char -> Help -> TypedOptionDefinition Boolean
 booleanOption l s h = TypedOptionDefinition (option l s h [] Nothing)
 
-fromTyped :: forall a. TypedOptionDefinition a -> OptionDefinition
+fromTyped :: forall a. TypedOptionDefinition a -> UntypedOptionDefinition
 fromTyped (TypedOptionDefinition d) = d
 
 maybeStringOption ::
