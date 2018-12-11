@@ -65,8 +65,9 @@ option ::
   LongName
   -> Maybe Char
   -> Help
+  -> Multiple
   -> Array MetaVar
   -> Maybe (Array String)
   -> UntypedOptionDefinition
-option l s h m v =
-  UntypedOptionDefinition l (map String.codePointFromChar s) h false m v
+option l s h m n v =
+  UntypedOptionDefinition l (map String.codePointFromChar s) h m n v

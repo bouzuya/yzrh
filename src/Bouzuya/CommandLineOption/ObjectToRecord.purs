@@ -20,6 +20,9 @@ import Type.Data.RowList (RLProxy(..))
 class GetValue a where
   getValue :: String -> OptionObject -> Maybe a
 
+instance getValueArrayString :: GetValue (Array String) where
+  getValue = OptionObject.getValues
+
 instance getValueBoolean :: GetValue Boolean where
   getValue k o = pure (OptionObject.hasKey k o)
 

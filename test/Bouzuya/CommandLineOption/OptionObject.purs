@@ -3,7 +3,7 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ) where
 
 import Bouzuya.CommandLineOption.NamedOptionDefinition (withName)
-import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, maybeStringOption, stringOption, untyped)
+import Bouzuya.CommandLineOption.OptionDefinition (arrayStringOption, booleanOption, maybeStringOption, stringOption, untyped)
 import Bouzuya.CommandLineOption.OptionObject (OptionObject, getFirstValue, getValues, hasKey, parse)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Array as Array
@@ -23,12 +23,14 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
       , withName "bString" (untyped (maybeStringOption "b-string" (Just 'b') "<b>" "b string option" Nothing))
       , withName "cBoolean" (untyped (booleanOption "c-boolean" (Just 'c') "c boolean option"))
       , withName "dBoolean" (untyped (booleanOption "d-boolean" (Just 'd') "d boolean option"))
+      , withName "eString" (untyped (arrayStringOption "e-string" (Just 'e') ["e1"] "e string option" []))
       ]
     defaults =
       o
         [ s "aString" "a1"
         , b "cBoolean" false
         , b "dBoolean" false
+        , a "eString" []
         ]
     o :: Array (Tuple String (Maybe (Array String))) -> OptionObject
     o es =
@@ -40,6 +42,8 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
     s k v = Tuple k (Just [v])
     b :: String -> Boolean -> Tuple String (Maybe (Array String))
     b k v = Tuple k (if v then Just [] else Nothing)
+    a :: String -> Array String -> Tuple String (Maybe (Array String))
+    a k v = Tuple k (Just v)
   suite "long (--foo bar)" do
     test "string option" do
       Assert.equal
@@ -54,6 +58,12 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
           , options: u (o [s "aString" "a2"]) defaults
           })
         (f defs ["--a-string", "a2"])
+      Assert.equal
+        (Right
+          { arguments: []
+          , options: u (o [a "eString" ["e1", "e2"]]) defaults
+          })
+        (f defs ["--e-string", "e1", "--e-string", "e2"])
     test "boolean option" do
       Assert.equal
         (Right
@@ -93,6 +103,12 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
           , options: u (o [s "aString" "a2"]) defaults
           })
         (f defs ["--a-string=a2"])
+      Assert.equal
+        (Right
+          { arguments: []
+          , options: u (o [a "eString" ["e1", "e2"]]) defaults
+          })
+        (f defs ["--e-string=e1", "--e-string=e2"])
     test "boolean option (ERROR)" do
       Assert.equal
         (Left "boolean option can't specify value") -- TODO: improve message
@@ -124,6 +140,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
+                  , a "eString" ["e1", "e2"]
                   ])
                 defaults
           })
@@ -132,6 +149,10 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
           [ "-a"
           , "a2"
           , "-c"
+          , "-e"
+          , "e1"
+          , "-e"
+          , "e2"
           ])
   suite "short (-f=b)" do
     test "string option and boolean option" do
@@ -143,6 +164,7 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
                 (o
                   [ s "aString" "a2"
                   , b "cBoolean" true
+                  , a "eString" ["e1", "e2"]
                   ])
                 defaults
           })
@@ -150,6 +172,8 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
           defs
           [ "-a=a2"
           , "-c"
+          , "-e=e1"
+          , "-e=e2"
           ])
   suite "short (-fg)" do
     test "string option and boolean option" do
@@ -241,6 +265,9 @@ tests = suite "Bouzuya.CommandLineOption.OptionObject" do
   test "getValues" do
     Assert.equal Nothing (getValues "unknown" defaults)
     Assert.equal (Just ["a1"]) (getValues "aString" defaults)
+    Assert.equal
+      (Just ["e1", "e2"])
+      (getValues "eString" (u (o [a "eString" ["e1", "e2"]]) defaults))
   test "hasKey" do
     Assert.equal false (hasKey "unknown" defaults)
     Assert.equal true (hasKey "aString" defaults)

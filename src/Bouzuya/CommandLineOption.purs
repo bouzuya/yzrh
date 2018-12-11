@@ -8,7 +8,7 @@ import Bouzuya.CommandLineOption.NamedOptionDefinition (NamedOptionDefinition)
 import Bouzuya.CommandLineOption.ObjectToRecord (class OptionRecordBuilder)
 import Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
 import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition)
-import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition, booleanOption, maybeStringOption, stringOption) as OptionDefinition
+import Bouzuya.CommandLineOption.OptionDefinition (OptionDefinition, arrayStringOption, booleanOption, maybeStringOption, stringOption) as OptionDefinition
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Bouzuya.CommandLineOption.RecordToArray (class ArrayBuilder)
 import Bouzuya.CommandLineOption.RecordToArray as RecordToArray
