@@ -36,7 +36,7 @@ parse :: forall r1 r2 l1 l2 l3
   -> Array String
   -> Either String (Parsed r2)
 parse defs ss = do
-  ds <- pure (RecordToArray.toArray defs)
-  parsed <-  OptionObject.parse ds ss
-  options <- note "toRecord error" (ObjectToRecord.toRecord parsed.options)
+  ds <- pure (RecordToArray.toArray defs) -- Typed* -> Named*
+  parsed <- OptionObject.parse ds ss -- Named* -> command-line options -> Object
+  options <- note "toRecord error" (ObjectToRecord.toRecord parsed.options) -- Object -> Record
   pure { arguments: parsed.arguments, options }
