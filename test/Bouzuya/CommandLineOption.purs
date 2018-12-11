@@ -6,7 +6,7 @@ import Bouzuya.CommandLineOption (booleanOption, maybeStringOption, stringOption
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
-import Test.Bouzuya.CommandLineOption.Internal.OptionDefinition as OptionDefinition
+import Test.Bouzuya.CommandLineOption.OptionDefinition as OptionDefinition
 import Test.Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
 import Test.Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Test.Bouzuya.CommandLineOption.RecordToArray as RecordToArray

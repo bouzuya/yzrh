@@ -1,4 +1,4 @@
-module Bouzuya.CommandLineOption.Internal.OptionDefinition
+module Bouzuya.CommandLineOption.OptionDefinition
   ( NamedOptionDefinition
   , OptionDefinition -- TODO
   , TypedOptionDefinition

@@ -4,8 +4,8 @@ module Bouzuya.CommandLineOption
   , parse
   ) where
 
-import Bouzuya.CommandLineOption.Internal.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition)
-import Bouzuya.CommandLineOption.Internal.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption) as ExportOptionDefinition
+import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, TypedOptionDefinition)
+import Bouzuya.CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption) as ExportOptionDefinition
 import Bouzuya.CommandLineOption.ObjectToRecord (class OptionRecordBuilder)
 import Bouzuya.CommandLineOption.ObjectToRecord as ObjectToRecord
 import Bouzuya.CommandLineOption.OptionObject as OptionObject

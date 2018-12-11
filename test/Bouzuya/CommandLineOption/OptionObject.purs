@@ -2,7 +2,7 @@ module Test.Bouzuya.CommandLineOption.OptionObject
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.Internal.OptionDefinition (booleanOption, fromTyped, maybeStringOption, stringOption, withName)
+import Bouzuya.CommandLineOption.OptionDefinition (booleanOption, fromTyped, maybeStringOption, stringOption, withName)
 import Bouzuya.CommandLineOption.OptionObject (OptionObject, getFirstValue, getValues, hasKey, parse)
 import Bouzuya.CommandLineOption.OptionObject as OptionObject
 import Data.Array as Array
