@@ -3,7 +3,6 @@ module CommandLineOption
   ) where
 
 import Bouzuya.CommandLineOption as CommandLineOption
-import Bouzuya.CommandLineOption.OptionDefinition (TypedOptionDefinition, booleanOption, maybeStringOption, stringOption)
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
 import Prelude (map)
@@ -17,18 +16,18 @@ type CommandLineOptions =
   }
 
 defs ::
-  { inFile :: TypedOptionDefinition (Maybe String)
-  , inFormat :: TypedOptionDefinition String
-  , outFormat :: TypedOptionDefinition String
-  , verbose :: TypedOptionDefinition Boolean
-  , version :: TypedOptionDefinition Boolean
+  { inFile :: CommandLineOption.TypedOptionDefinition (Maybe String)
+  , inFormat :: CommandLineOption.TypedOptionDefinition String
+  , outFormat :: CommandLineOption.TypedOptionDefinition String
+  , verbose :: CommandLineOption.TypedOptionDefinition Boolean
+  , version :: CommandLineOption.TypedOptionDefinition Boolean
   }
 defs =
-  { inFile: maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
-  , inFormat: stringOption "in-format" (Just 'i') "<format>" "input file format" "json"
-  , outFormat: stringOption "out-format" (Just 'o') "<format>" "output file format" "json"
-  , verbose: booleanOption "verbose" (Just 'v') "verbose"
-  , version: booleanOption "version" (Just 'V') "show version"
+  { inFile: CommandLineOption.maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
+  , inFormat: CommandLineOption.stringOption "in-format" (Just 'i') "<format>" "input file format" "json"
+  , outFormat: CommandLineOption.stringOption "out-format" (Just 'o') "<format>" "output file format" "json"
+  , verbose: CommandLineOption.booleanOption "verbose" (Just 'v') "verbose"
+  , version: CommandLineOption.booleanOption "version" (Just 'V') "show version"
   }
 
 parse :: Array String -> Maybe CommandLineOptions

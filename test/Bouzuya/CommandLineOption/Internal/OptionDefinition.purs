@@ -1,15 +1,15 @@
-module Test.Bouzuya.CommandLineOption.OptionDefinition
+module Test.Bouzuya.CommandLineOption.Internal.OptionDefinition
   ( tests
   ) where
 
-import Bouzuya.CommandLineOption.OptionDefinition (NamedOptionDefinition, OptionDefinition, TypedOptionDefinition, booleanOption, booleanOptionFromTyped, getDefaultValue, getLongName, getName, getShortName, isValueRequired, maybeStringOption, maybeStringOptionFromTyped, stringOption, stringOptionFromTyped, withName)
+import Bouzuya.CommandLineOption.Internal.OptionDefinition (NamedOptionDefinition, OptionDefinition, TypedOptionDefinition, booleanOption, booleanOptionFromTyped, getDefaultValue, getLongName, getName, getShortName, isValueRequired, maybeStringOption, maybeStringOptionFromTyped, stringOption, stringOptionFromTyped, withName)
 import Data.Maybe (Maybe(..))
 import Prelude (discard)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 
 tests :: TestSuite
-tests = suite "Bouzuya.CommandLineOption.OptionDefinition" do
+tests = suite "Bouzuya.CommandLineOption.Internal.OptionDefinition" do
   let
     -- public apis
     s :: TypedOptionDefinition String

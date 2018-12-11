@@ -1,4 +1,4 @@
-module Bouzuya.CommandLineOption.OptionDefinition
+module Bouzuya.CommandLineOption.Internal.OptionDefinition
   ( BooleanOptionInfo -- TODO: delete
   , NamedOptionDefinition
   , OptionDefinition -- TODO
