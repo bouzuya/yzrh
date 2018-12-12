@@ -74,6 +74,11 @@ main = do
   argv <- Process.argv
   optionsMaybe <- pure (CommandLineOption.parse (Array.drop 2 argv))
   options <- maybe (throw "no options") pure optionsMaybe
+  if options.help
+    then do
+      log "HELP" -- TODO
+      Process.exit 0
+    else pure unit
   if options.version
     then do
       log "0.0.0" -- TODO

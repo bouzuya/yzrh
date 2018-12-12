@@ -10,8 +10,15 @@ import Test.Unit.Assert as Assert
 
 tests :: TestSuite
 tests = suite "CommandLineOption" do
-  let defaults = { inFile: "yas.json", inFormat: "json", outFormat: "json", verbose: false, version: false }
+  let defaults = { help: false, inFile: "yas.json", inFormat: "json", outFormat: "json", verbose: false, version: false }
   suite "long (--foo bar)" do
+    test "help" do
+      Assert.equal
+        (Just defaults { inFile = Just "routes.rb", help = false })
+        (parse ["--in-file", "routes.rb"])
+      Assert.equal
+        (Just defaults { inFile = Just "routes.rb", help = true })
+        (parse ["--in-file", "routes.rb", "--help"])
     test "in-format" do
       Assert.equal
         (Just defaults { inFile = Just "yas.json", inFormat = "json" })
@@ -57,8 +64,8 @@ tests = suite "CommandLineOption" do
         (parse ["--in-file=routes.rb"])
   test "short (-f b)" do
     Assert.equal
-      (Just defaults { inFile = Just "routes.rb", inFormat = "routes.rb", outFormat = "routes.rb", verbose = true, version = true })
-      (parse ["-f", "routes.rb", "-i", "routes.rb", "-o", "routes.rb", "-v", "-V"])
+      (Just defaults { help = true, inFile = Just "routes.rb", inFormat = "routes.rb", outFormat = "routes.rb", verbose = true, version = true })
+      (parse ["-f", "routes.rb", "-h", "-i", "routes.rb", "-o", "routes.rb", "-v", "-V"])
   test "short (-f=b)" do
     Assert.equal
       (Just defaults { inFile = Just "routes.rb" })

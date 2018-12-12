@@ -8,7 +8,8 @@ import Data.Maybe (Maybe(..))
 import Prelude (map)
 
 type CommandLineOptions =
-  { inFile :: Maybe String
+  { help :: Boolean
+  , inFile :: Maybe String
   , inFormat :: String
   , outFormat :: String
   , verbose :: Boolean
@@ -16,14 +17,16 @@ type CommandLineOptions =
   }
 
 defs ::
-  { inFile :: CommandLineOption.OptionDefinition (Maybe String)
+  { help :: CommandLineOption.OptionDefinition Boolean
+  , inFile :: CommandLineOption.OptionDefinition (Maybe String)
   , inFormat :: CommandLineOption.OptionDefinition String
   , outFormat :: CommandLineOption.OptionDefinition String
   , verbose :: CommandLineOption.OptionDefinition Boolean
   , version :: CommandLineOption.OptionDefinition Boolean
   }
 defs =
-  { inFile: CommandLineOption.maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
+  { help: CommandLineOption.booleanOption "help" (Just 'h') "show help"
+  , inFile: CommandLineOption.maybeStringOption "in-file" (Just 'f') "<file>" "input file" Nothing
   , inFormat: CommandLineOption.stringOption "in-format" (Just 'i') "<format>" "input file format" "json"
   , outFormat: CommandLineOption.stringOption "out-format" (Just 'o') "<format>" "output file format" "json"
   , verbose: CommandLineOption.booleanOption "verbose" (Just 'v') "verbose"
