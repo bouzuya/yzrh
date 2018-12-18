@@ -1,8 +1,9 @@
 {
   "name": "yzrh",
-  "set": "bouzuya-20181209",
+  "set": "bouzuya-20181214",
   "source": "https://github.com/bouzuya/package-sets.git",
   "depends": [
+    "bouzuya-command-line-option-parser",
     "bouzuya-http-method",
     "bouzuya-http-status-code",
     "node-fs",
