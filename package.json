@@ -29,7 +29,6 @@
     "build": "spago sources | xargs purs compile 'src/**/*.purs' 'test/**/*.purs'",
     "postinstall": "spago install",
     "purs": "purs",
-    "repl": "psc-package repl -- 'test/**/*.purs'",
     "spago": "spago",
     "start": "./bin/yzrh",
     "test": "node --eval \"require('./output/Test.Main').main();\""
