@@ -2,6 +2,8 @@ module Main
   ( main
   ) where
 
+import Prelude
+
 import Data.Array as Array
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmptyArray
@@ -11,9 +13,9 @@ import Data.Maybe (maybe)
 import Data.String as String
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Console (log)
 import Effect.Console as Console
 import Effect.Exception (throw)
+import Effect.Exception as Exception
 import Foreign.Object as Object
 import Node.Encoding as Encoding
 import Node.FS.Sync as FS
@@ -24,9 +26,7 @@ import OpenAPIHelper as OpenAPIHelper
 import Options as Options
 import PathTemplate (PathTemplate)
 import PathTemplate as PathTemplate
-import Prelude (class Ord, Unit, bind, discard, map, pure, show, unit, (<>), (==))
 import Simple.JSON (writeJSON)
-import Unsafe.Coerce (unsafeCoerce)
 import Version as Version
 import YAS (YAS)
 import YAS as YAS
@@ -36,11 +36,24 @@ readRoutesRb :: FilePath -> Effect YAS
 readRoutesRb p = map YASRailsRoutes.fromString (FS.readTextFile Encoding.UTF8 p)
 
 readYasJson :: FilePath -> Effect YAS
-readYasJson p = unsafeCoerce unit -- FIXME
+readYasJson _ = Exception.throw "not implemented" -- FIXME
+
+writeOpenapiJson :: YAS -> String -> Effect Unit
+writeOpenapiJson yas title = do
+  let
+    paths = yasToPaths yas
+    info = OpenAPIHelper.buildInfo title "0.0.0"
+    openApi = OpenAPIHelper.buildOpenApi info paths
+  Console.log (writeJSON openApi)
+
+writeRoutesRb :: YAS -> Effect Unit
+writeRoutesRb _ = Exception.throw "not implemented" -- FIXME
 
 pathMap :: forall k v. Ord k => (v -> k) -> Array v -> Map k (NonEmptyArray v)
 pathMap key xs =
-  Map.fromFoldableWith (<>) (map (\x -> Tuple (key x) (NonEmptyArray.singleton x)) xs)
+  Map.fromFoldableWith
+    (<>)
+    (map (\x -> Tuple (key x) (NonEmptyArray.singleton x)) xs)
 
 yasToPaths :: YAS -> OpenAPI.Paths
 yasToPaths yas =
@@ -56,7 +69,8 @@ yasToPaths yas =
                 (\r ->
                   Tuple
                     (String.toLower (show r.method))
-                    (OpenAPIHelper.buildOperation (PathTemplate.parameterNames r.path))
+                    (OpenAPIHelper.buildOperation
+                      (PathTemplate.parameterNames r.path))
                 )
                 routes
             )
@@ -88,18 +102,11 @@ main = do
     else pure unit
   inFile <- maybe (throw "no inFile") pure options.inFile
   yas <-
-    if options.inFormat == "json"
-    then readYasJson inFile
-    else if options.inFormat == "routes.rb"
-    then readRoutesRb inFile
-    else throw "unknown format"
-  if options.outFormat == "json"
-    then do
-      let
-        paths = yasToPaths yas
-        info = OpenAPIHelper.buildInfo inFile "0.0.0"
-        openApi = OpenAPIHelper.buildOpenApi info paths
-      log (writeJSON openApi)
-    else if options.outFormat == "routes.rb"
-    then throw "not implemented" -- TODO
-    else throw "unknown format"
+    case options.inFormat of
+      "json" -> readYasJson inFile
+      "routes.rb" -> readRoutesRb inFile
+      _ -> Exception.throw "unknown format"
+  case options.outFormat of
+    "json" -> writeOpenapiJson yas inFile -- inFile as title
+    "routes.rb" -> writeRoutesRb yas
+    _ -> Exception.throw "unknown format"
