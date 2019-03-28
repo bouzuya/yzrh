@@ -46,8 +46,8 @@ writeOpenapiJson yas title = do
     openApi = OpenAPIHelper.buildOpenApi info paths
   Console.log (writeJSON openApi)
 
-writeRoutesRb :: YAS -> Effect Unit
-writeRoutesRb _ = Exception.throw "not implemented" -- FIXME
+writeYasJson :: YAS -> Effect Unit
+writeYasJson _ = Exception.throw "not implemented" -- FIXME
 
 pathMap :: forall k v. Ord k => (v -> k) -> Array v -> Map k (NonEmptyArray v)
 pathMap key xs =
@@ -107,6 +107,6 @@ main = do
       "routes.rb" -> readRoutesRb inFile
       _ -> Exception.throw "unknown format"
   case options.outFormat of
-    "json" -> writeOpenapiJson yas inFile -- inFile as title
-    "routes.rb" -> writeRoutesRb yas
+    "json" -> writeYasJson yas
+    "openapi.json" -> writeOpenapiJson yas inFile -- inFile as title
     _ -> Exception.throw "unknown format"
