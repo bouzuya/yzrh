@@ -1,10 +1,12 @@
 module Options
-  ( parse
+  ( help
+  , parse
   ) where
 
 import Bouzuya.CommandLineOption as CommandLineOption
 import Data.Either (hush)
 import Data.Maybe (Maybe(..))
+import Data.String as String
 import Prelude (map)
 
 type CommandLineOptions =
@@ -32,6 +34,21 @@ defs =
   , verbose: CommandLineOption.booleanOption "verbose" (Just 'v') "verbose"
   , version: CommandLineOption.booleanOption "version" (Just 'V') "show version"
   }
+
+help :: String
+help =
+  String.joinWith
+    "\n"
+    [ "Usage: yzrh "
+    , ""
+    , "Options:"
+    , "  -h,--help                show help"
+    , "  -i,--in-format <format>  input file format"
+    , "  -o,--out-format <format> output file format"
+    , "  -v,--verbose             verbose"
+    , "  -V,--version             show version"
+    , ""
+    ]
 
 parse :: Array String -> Maybe CommandLineOptions
 parse ss = map _.options (hush (CommandLineOption.parse defs ss))

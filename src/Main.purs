@@ -12,6 +12,7 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
+import Effect.Console as Console
 import Effect.Exception (throw)
 import Foreign.Object as Object
 import Node.Encoding as Encoding
@@ -76,7 +77,7 @@ main = do
   options <- maybe (throw "no options") pure optionsMaybe
   if options.help
     then do
-      log "HELP" -- TODO
+      Console.log Options.help
       Process.exit 0
     else pure unit
   if options.version
