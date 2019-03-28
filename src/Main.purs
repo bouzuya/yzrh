@@ -27,6 +27,7 @@ import PathTemplate as PathTemplate
 import Prelude (class Ord, Unit, bind, discard, map, pure, show, unit, (<>), (==))
 import Simple.JSON (writeJSON)
 import Unsafe.Coerce (unsafeCoerce)
+import Version as Version
 import YAS (YAS)
 import YAS as YAS
 import YAS.RailsRoutes as YASRailsRoutes
@@ -82,7 +83,7 @@ main = do
     else pure unit
   if options.version
     then do
-      log "0.0.0" -- TODO
+      Console.log Version.version
       Process.exit 0
     else pure unit
   inFile <- maybe (throw "no inFile") pure options.inFile
