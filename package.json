@@ -32,6 +32,6 @@
     "repl": "spago repl",
     "spago": "spago",
     "start": "./bin/yzrh",
-    "test": "node --eval \"require('./output/Test.Main').main();\""
+    "test": "spago test"
   }
 }

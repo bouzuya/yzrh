@@ -2,7 +2,6 @@ module Main
   ( main
   ) where
 
-import CommandLineOption as CommandLineOption
 import Data.Array as Array
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmptyArray
@@ -21,6 +20,7 @@ import Node.Path (FilePath)
 import Node.Process as Process
 import OpenAPI as OpenAPI
 import OpenAPIHelper as OpenAPIHelper
+import Options as Options
 import PathTemplate (PathTemplate)
 import PathTemplate as PathTemplate
 import Prelude (class Ord, Unit, bind, discard, map, pure, show, unit, (<>), (==))
@@ -72,7 +72,7 @@ yasToPaths yas =
 main :: Effect Unit
 main = do
   argv <- Process.argv
-  optionsMaybe <- pure (CommandLineOption.parse (Array.drop 2 argv))
+  optionsMaybe <- pure (Options.parse (Array.drop 2 argv))
   options <- maybe (throw "no options") pure optionsMaybe
   if options.help
     then do

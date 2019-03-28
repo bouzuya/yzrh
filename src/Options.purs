@@ -1,4 +1,4 @@
-module CommandLineOption
+module Options
   ( parse
   ) where
 
