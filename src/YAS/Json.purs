@@ -7,8 +7,22 @@ import Prelude (const, (<<<))
 import Simple.JSON (readJSON)
 import YAS (YAS)
 
-type YASJson =
+type ActionJson =
   { -- TODO
+  }
+
+type RouteJson =
+  { -- TODO
+  }
+
+type ViewJson =
+  { -- TODO
+  }
+
+type YASJson =
+  { actions :: Array ActionJson
+  , routes :: Array RouteJson
+  , views :: Array ViewJson
   }
 
 fromJsonString :: String -> Maybe YAS

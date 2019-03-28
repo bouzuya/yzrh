@@ -10,6 +10,7 @@ import Data.Array.NonEmpty as NonEmptyArray
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (maybe)
+import Data.Maybe as Maybe
 import Data.String as String
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
@@ -30,13 +31,19 @@ import Simple.JSON (writeJSON)
 import Version as Version
 import YAS (YAS)
 import YAS as YAS
+import YAS.Json as YASJson
 import YAS.RailsRoutes as YASRailsRoutes
 
 readRoutesRb :: FilePath -> Effect YAS
 readRoutesRb p = map YASRailsRoutes.fromString (FS.readTextFile Encoding.UTF8 p)
 
 readYasJson :: FilePath -> Effect YAS
-readYasJson _ = Exception.throw "not implemented" -- FIXME
+readYasJson p = do
+  jsonString <- FS.readTextFile Encoding.UTF8 p
+  Maybe.maybe
+    (Exception.throw "invalid yas.json")
+    pure
+    (YASJson.fromJsonString jsonString)
 
 writeOpenapiJson :: YAS -> String -> Effect Unit
 writeOpenapiJson yas title = do
