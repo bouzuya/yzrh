@@ -1,5 +1,6 @@
 module YAS.Json
   ( fromJsonString
+  , toJsonString
   ) where
 
 import Prelude
@@ -81,3 +82,43 @@ fromYASJson json = do
   routes <- Traversable.traverse fromRouteJson json.routes
   views <- Traversable.traverse fromViewJson json.views
   pure { actions, routes, views }
+
+toActionJson :: Action -> ActionJson
+toActionJson { name, parameters, views } =
+  let
+    views' =
+      Object.fromFoldable
+        (map
+          (\(Tuple i v) -> Tuple (show i) v)
+          ((Map.toUnfoldable views) :: Array (Tuple Int View)))
+  in
+    { name, parameters, views: views' }
+
+toJson :: YAS -> YASJson
+toJson { actions, routes, views } =
+  let
+    actions' = map toActionJson actions
+    routes' = map toRouteJson routes
+    views' = map toViewJson views
+  in
+    { actions: actions', routes: routes', views: views' }
+
+toJsonString :: YAS -> String
+toJsonString = SimpleJSON.writeJSON <<< toJson
+
+toRouteJson :: Route -> RouteJson
+toRouteJson { action, method, name, parameters, path } =
+  let
+    method' = show method
+    parameters' =
+      map
+        (\{ name: name', pattern: pattern' } ->
+          let pattern'' = show pattern'
+          in { name: name', pattern: pattern'' })
+        parameters
+    path' = show path
+  in
+    { action, method: method', name, parameters: parameters', path: path' }
+
+toViewJson :: View -> ViewJson
+toViewJson = identity
