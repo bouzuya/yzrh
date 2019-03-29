@@ -52,7 +52,10 @@ writeOpenapiJson yas title version = do
   Console.log (SimpleJSON.writeJSON openApi)
 
 writeYasJson :: YAS -> Effect Unit
-writeYasJson _ = Exception.throw "not implemented" -- FIXME
+writeYasJson yas = do
+  let yasJson = YASJson.toJsonString yas
+  Console.log yasJson
+
 
 main :: Effect Unit
 main = do
