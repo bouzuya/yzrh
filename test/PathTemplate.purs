@@ -17,6 +17,12 @@ tests = suite "PathTemplate" do
         unsafePartial (fromJust (PathTemplate.fromConfigString "/users/:id"))
     Assert.equal "/users/{id}" (show template)
     Assert.equal ["id"] (PathTemplate.parameterNames template)
+  test "/users/{id}" do
+    let
+      template =
+        unsafePartial (fromJust (PathTemplate.fromString "/users/{id}"))
+    Assert.equal "/users/{id}" (show template)
+    Assert.equal ["id"] (PathTemplate.parameterNames template)
   test "/" do
     let
       template =

@@ -1,14 +1,22 @@
 module PathTemplate
   ( PathTemplate
   , fromConfigString
+  , fromString
   , parameterNames
   ) where
 
+import Prelude
+
 import Data.Array as Array
+import Data.Array.NonEmpty as NonEmptyArray
 import Data.Foldable (intercalate)
 import Data.Maybe (Maybe(..))
 import Data.String as String
-import Prelude (class Eq, class Ord, class Show, compare, eq, map, show, (<>))
+import Data.String.Regex (Regex)
+import Data.String.Regex as Regex
+import Data.String.Regex.Flags as RegexFlags
+import Data.String.Regex.Unsafe as RegexUnsafe
+import Data.Traversable as Traversable
 
 data T
   = P String
@@ -44,6 +52,22 @@ fromConfigString s =
         case before of
           ":" -> P after
           _ -> S s'
+
+fromString :: String -> Maybe PathTemplate
+fromString s = map PathTemplate (Traversable.traverse fromString' pieces)
+  where
+    pattern :: Regex
+    pattern = RegexUnsafe.unsafeRegex "^\\{([A-Za-z_][0-9A-Za-z_]*)\\}$" RegexFlags.noFlags
+
+    pieces :: Array String
+    pieces = String.split (String.Pattern "/") s
+
+    fromString' :: String -> Maybe T
+    fromString' s' =
+      case Regex.match pattern s' of
+        Nothing -> Just (S s')
+        Just matches ->
+          map P (join (Array.head (NonEmptyArray.drop 1 matches)))
 
 parameterNames :: PathTemplate -> Array String
 parameterNames (PathTemplate ts) =
