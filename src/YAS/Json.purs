@@ -1,5 +1,6 @@
 module YAS.Json
-  ( fromJsonString ) where
+  ( fromJsonString
+  ) where
 
 import Prelude
 
@@ -43,10 +44,10 @@ type YASJson =
   }
 
 fromJsonString :: String -> Maybe YAS
-fromJsonString s = join (Either.hush (map toYAS (SimpleJSON.readJSON s)))
+fromJsonString s = join (Either.hush (map fromYASJson (SimpleJSON.readJSON s)))
 
-toAction :: ActionJson -> Maybe Action
-toAction { name, parameters, views } = do
+fromActionJson :: ActionJson -> Maybe Action
+fromActionJson { name, parameters, views } = do
   views' <-
     map
       Map.fromFoldable
@@ -58,8 +59,8 @@ toAction { name, parameters, views } = do
         ((Object.toUnfoldable views) :: Array _))
   pure { name, parameters, views: views' }
 
-toRoute :: RouteJson -> Maybe Route
-toRoute { action, method, name, parameters, path } = do
+fromRouteJson :: RouteJson -> Maybe Route
+fromRouteJson { action, method, name, parameters, path } = do
   method' <- Method.fromString method
   parameters' <-
     Traversable.traverse
@@ -71,12 +72,12 @@ toRoute { action, method, name, parameters, path } = do
   path' <- PathTemplate.fromString path
   pure { action, method: method', name, parameters: parameters', path: path' }
 
-toView :: ViewJson -> Maybe View
-toView json = pure json
+fromViewJson :: ViewJson -> Maybe View
+fromViewJson json = pure json
 
-toYAS :: YASJson -> Maybe YAS
-toYAS json = do
-  actions <- Traversable.traverse toAction json.actions
-  routes <- Traversable.traverse toRoute json.routes
-  views <- Traversable.traverse toView json.views
+fromYASJson :: YASJson -> Maybe YAS
+fromYASJson json = do
+  actions <- Traversable.traverse fromActionJson json.actions
+  routes <- Traversable.traverse fromRouteJson json.routes
+  views <- Traversable.traverse fromViewJson json.views
   pure { actions, routes, views }
