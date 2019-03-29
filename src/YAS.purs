@@ -11,21 +11,21 @@ module YAS
   , patternFromString
   ) where
 
+import Prelude
+
 import Bouzuya.HTTP.Method (Method)
-import Bouzuya.HTTP.StatusCode (StatusCode)
-import Data.Either (either)
+import Data.Either as Either
 import Data.Map (Map)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe)
 import Data.String.Regex (Regex)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import PathTemplate (PathTemplate)
-import Prelude (class Eq, class Show, const, eq, map, show)
 
 type Action =
   { name :: ActionName
   , parameters :: Array ActionParameter
-  , views :: Map StatusCode View
+  , views :: Map Int View -- Int (StatusCode)
   }
 
 type ActionName = String
@@ -69,4 +69,4 @@ type YAS =
 
 patternFromString :: String -> Maybe Pattern
 patternFromString s =
-  map Pattern (either (const Nothing) Just (Regex.regex s noFlags))
+  map Pattern (Either.hush (Regex.regex s noFlags))
