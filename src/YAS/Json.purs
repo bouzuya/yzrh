@@ -43,9 +43,6 @@ type YASJson =
   , views :: Array ViewJson
   }
 
-fromJsonString :: String -> Maybe YAS
-fromJsonString s = join (Either.hush (map fromYASJson (SimpleJSON.readJSON s)))
-
 fromActionJson :: ActionJson -> Maybe Action
 fromActionJson { name, parameters, views } = do
   views' <-
@@ -58,6 +55,9 @@ fromActionJson { name, parameters, views } = do
           pure (Tuple i v))
         ((Object.toUnfoldable views) :: Array _))
   pure { name, parameters, views: views' }
+
+fromJsonString :: String -> Maybe YAS
+fromJsonString s = join (Either.hush (map fromYASJson (SimpleJSON.readJSON s)))
 
 fromRouteJson :: RouteJson -> Maybe Route
 fromRouteJson { action, method, name, parameters, path } = do
