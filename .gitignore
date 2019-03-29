@@ -1,5 +1,6 @@
 /.env*
 /.psc*
 /.spago/
+/index.js
 /node_modules/
 /output/

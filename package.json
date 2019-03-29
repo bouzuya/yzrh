@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "npm-run-all -s build:version build:purs",
-    "build:purs": "spago build",
+    "build:purs": "spago make-module",
     "build:version": "npx @bouzuya/create-version-module --language PureScript src/Version.purs",
     "prepare": "npm run build",
     "purs": "purs",
